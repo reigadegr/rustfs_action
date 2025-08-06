@@ -62,6 +62,7 @@ runs:
           linux-modules-extra-"$(uname -r)"
 
     - name: Optimize Memory Management
+      shell: bash
       run: |
          sudo -E sysctl vm.swappiness=1
          sudo -E sysctl vm.min_free_kbytes=32768

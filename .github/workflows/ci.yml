@@ -11,7 +11,8 @@ jobs:
       - name: Other deps
         run: |
           sudo apt update
-          sudo apt install gcc-multilib llvm clang make cmake linux-modules-extra-"$(uname -r)"
+          sudo apt install gcc-multilib llvm clang zig \
+          make cmake linux-modules-extra-"$(uname -r)"
           
       - name: Optimize Memory Management
         run: |
@@ -37,6 +38,7 @@ jobs:
           rustup target add aarch64-linux-android armv7-linux-androideabi x86_64-linux-android i686-linux-android
           rustup component add rust-src llvm-tools-preview
           rustup update
+          cargo install cargo-zigbuild
 
       - name: Clone rustfs sources
         run: |

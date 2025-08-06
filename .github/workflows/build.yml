@@ -248,20 +248,20 @@ jobs:
 
           if [[ "${{ matrix.cross }}" == "true" ]]; then
             if [[ "${{ matrix.platform }}" == "windows" ]]; then
-              # Use cross for Windows ARM64
-              ls -al; pwd
+              # Use cross for Windows ARM64              
               cd rustfs
+              ls -al; pwd
               cargo install cross --git https://github.com/cross-rs/cross
               cross build --release --target ${{ matrix.target }} -p rustfs --bins
             else
-              # Use zigbuild for other cross-compilation
-              ls -al; pwd
+              # Use zigbuild for other cross-compilation          
               cd rustfs
+              ls -al; pwd
               cargo zigbuild --release --target ${{ matrix.target }} -p rustfs --bins
             fi
-          else
-            ls -al; pwd
+          else            
             cd rustfs
+            ls -al; pwd
             cargo build --release --target ${{ matrix.target }} -p rustfs --bins
           fi
 

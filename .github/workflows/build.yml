@@ -216,24 +216,19 @@ jobs:
             fi
           fi
 
+      - name: Setup rust toolchains
+        run: |
+          rustup default nightly
+          rustup target add aarch64-linux-android armv7-linux-androideabi x86_64-linux-android i686-linux-android
+          rustup component add rust-src llvm-tools-preview
+          rustup update
+
       - name: Build RustFS
         shell: bash
         run: |
           # Force rebuild by touching build.rs
           touch rustfs/build.rs
-
-          if [[ "${{ matrix.cross }}" == "true" ]]; then
-            if [[ "${{ matrix.platform }}" == "windows" ]]; then
-              # Use cross for Windows ARM64
-              cargo install cross --git https://github.com/cross-rs/cross
-              cross build --release --target ${{ matrix.target }} -p rustfs --bins
-            else
-              # Use zigbuild for other cross-compilation          
-              cargo zigbuild --release --target ${{ matrix.target }} -p rustfs --bins
-            fi
-          else
-            cargo build --release --target ${{ matrix.target }} -p rustfs --bins
-          fi
+          cargo zigbuild -r --target ${{ matrix.target }} -p rustfs --bins -Z trim-paths -r -Z build-std
 
       - name: Create release package
         id: package

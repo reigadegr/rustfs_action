@@ -189,6 +189,11 @@ jobs:
           cache-save-if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/') }}
           install-cross-tools: ${{ matrix.cross }}
 
+      - name: Clone rustfs sources
+        run: |
+          git clone --depth 1 https://github.com/rustfs/rustfs
+          mv rustfs/*  .
+
       - name: Download static console assets
         shell: bash
         run: |

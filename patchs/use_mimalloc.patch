@@ -1,0 +1,30 @@
+diff --git a/rustfs/Cargo.toml b/rustfs/Cargo.toml
+index b13ed45..8bc7df4 100644
+--- a/rustfs/Cargo.toml
++++ b/rustfs/Cargo.toml
+@@ -106,6 +106,10 @@ tower-http = { workspace = true, features = [
+ urlencoding = { workspace = true }
+ uuid = { workspace = true }
+ zip = { workspace = true }
++mimalloc = { version = "0.1.47", features = [
++    "local_dynamic_tls",
++    "override",
++] }
+ 
+ [target.'cfg(any(target_os = "macos", target_os = "freebsd", target_os = "netbsd", target_os = "openbsd"))'.dependencies]
+ sysctl = { workspace = true }
+diff --git a/rustfs/src/main.rs b/rustfs/src/main.rs
+index 8275d84..1c6be13 100644
+--- a/rustfs/src/main.rs
++++ b/rustfs/src/main.rs
+@@ -57,9 +57,8 @@ use std::io::{Error, Result};
+ use std::sync::Arc;
+ use tracing::{debug, error, info, instrument, warn};
+ 
+-#[cfg(all(target_os = "linux", target_env = "gnu"))]
+ #[global_allocator]
+-static GLOBAL: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
++static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
+ 
+ #[instrument]
+ fn print_server_info() {

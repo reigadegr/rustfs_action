@@ -1,0 +1,67 @@
+name: ci-build
+on:
+  workflow_dispatch:
+env:
+  CARGO_TERM_COLOR: always
+jobs:
+  release-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Other deps
+        run: |
+          sudo apt update
+          sudo apt install gcc-multilib llvm clang \
+          make cmake linux-modules-extra-"$(uname -r)"
+          sudo snap install zig --classic --beta
+
+      - name: Optimize Memory Management
+        run: |
+          sudo -E sysctl vm.swappiness=1
+          sudo -E sysctl vm.min_free_kbytes=32768
+          sudo -E sysctl vm.watermark_scale_factor=100
+          sudo -E sysctl vm.watermark_boost_factor=15000
+          sudo -E sysctl vm.overcommit_memory=1
+          sudo -E sysctl vm.page-cluster=0
+          sudo -E modprobe zram
+          echo "0" | sudo -E tee /sys/class/block/zram0/mem_limit
+          echo "zstd" | sudo -E tee /sys/class/block/zram0/comp_algorithm
+          echo "$(awk 'NR==1{print $2*1000}' </proc/meminfo)" | sudo -E tee /sys/class/block/zram0/disksize
+          sudo -E mkswap /dev/zram0
+          sudo -E swapon -p 100 /dev/zram0
+          echo "Y" | sudo -E tee /sys/kernel/mm/lru_gen/enabled
+          echo "1000" | sudo -E tee /sys/kernel/mm/lru_gen/min_ttl_ms
+          echo "1" | sudo -E tee /sys/kernel/mm/swap/vma_ra_enabled
+
+      - name: Setup rust toolchains
+        run: |
+          rustup default nightly
+          rustup target add aarch64-unknown-linux-musl x86_64-unknown-linux-musl
+          rustup component add rust-src llvm-tools-preview
+          rustup update
+          cargo install cargo-zigbuild
+
+      - name: Clone rustfs sources
+        run: |
+          git clone --depth 1 https://github.com/rustfs/rustfs
+
+      - name: Build rustfs
+        run: |
+          cd rustfs
+          export CC="zig cc -target aarch64-linux-musl"       
+          unset CC
+          unset CFLAGS
+          unset TARGET_CFLAGS
+          unset CFLAGS_aarch64_unknown_linux_musl
+          # unset CARGO_TARGET         
+          # ./build-rustfs.sh --platform aarch64-unknown-linux-musl --skip-verification || true
+          cargo install cross
+          cross build --target aarch64-unknown-linux-musl -r
+
+      - name: Upload release version
+        uses: actions/upload-artifact@v4
+        with:
+          name: thread-opt(debug)
+          compression-level: 9
+          path: rustfs/release/aarch64-unknown-linux-musl/rustfs
+

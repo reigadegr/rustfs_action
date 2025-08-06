@@ -1,67 +1,166 @@
-name: ci-build
+# Copyright 2024 RustFS Team
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: Continuous Integration
+
 on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+      - "**.txt"
+      - "docs/**"
+      - "deploy/**"
+      - "scripts/dev_*.sh"
+      - "scripts/probe.sh"
+      - "LICENSE*"
+      - ".gitignore"
+      - ".dockerignore"
+      - "README*"
+      - "**/*.png"
+      - "**/*.jpg"
+      - "**/*.svg"
+      - ".github/workflows/build.yml"
+      - ".github/workflows/docker.yml"
+      - ".github/workflows/audit.yml"
+      - ".github/workflows/performance.yml"
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+      - "**.txt"
+      - "docs/**"
+      - "deploy/**"
+      - "scripts/dev_*.sh"
+      - "scripts/probe.sh"
+      - "LICENSE*"
+      - ".gitignore"
+      - ".dockerignore"
+      - "README*"
+      - "**/*.png"
+      - "**/*.jpg"
+      - "**/*.svg"
+      - ".github/workflows/build.yml"
+      - ".github/workflows/docker.yml"
+      - ".github/workflows/audit.yml"
+      - ".github/workflows/performance.yml"
+  schedule:
+    - cron: "0 0 * * 0" # Weekly on Sunday at midnight UTC
   workflow_dispatch:
+
 env:
   CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
 jobs:
-  release-build:
+  skip-check:
+    name: Skip Duplicate Actions
+    permissions:
+      actions: write
+      contents: read
+    runs-on: ubuntu-latest
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - name: Skip duplicate actions
+        id: skip_check
+        uses: fkirc/skip-duplicate-actions@v5
+        with:
+          concurrent_skipping: "same_content_newer"
+          cancel_others: true
+          paths_ignore: '["*.md", "docs/**", "deploy/**"]'
+          # Never skip release events and tag pushes
+          do_not_skip: '["workflow_dispatch", "schedule", "merge_group", "release", "push"]'
+
+
+  typos:
+    name: Typos
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Other deps
-        run: |
-          sudo apt update
-          sudo apt install gcc-multilib llvm clang \
-          make cmake linux-modules-extra-"$(uname -r)"
-          sudo snap install zig --classic --beta
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Typos check with custom config file
+        uses: crate-ci/typos@master
 
-      - name: Optimize Memory Management
-        run: |
-          sudo -E sysctl vm.swappiness=1
-          sudo -E sysctl vm.min_free_kbytes=32768
-          sudo -E sysctl vm.watermark_scale_factor=100
-          sudo -E sysctl vm.watermark_boost_factor=15000
-          sudo -E sysctl vm.overcommit_memory=1
-          sudo -E sysctl vm.page-cluster=0
-          sudo -E modprobe zram
-          echo "0" | sudo -E tee /sys/class/block/zram0/mem_limit
-          echo "zstd" | sudo -E tee /sys/class/block/zram0/comp_algorithm
-          echo "$(awk 'NR==1{print $2*1000}' </proc/meminfo)" | sudo -E tee /sys/class/block/zram0/disksize
-          sudo -E mkswap /dev/zram0
-          sudo -E swapon -p 100 /dev/zram0
-          echo "Y" | sudo -E tee /sys/kernel/mm/lru_gen/enabled
-          echo "1000" | sudo -E tee /sys/kernel/mm/lru_gen/min_ttl_ms
-          echo "1" | sudo -E tee /sys/kernel/mm/swap/vma_ra_enabled
+  test-and-lint:
+    name: Test and Lint
+    needs: skip-check
+    if: needs.skip-check.outputs.should_skip != 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Setup rust toolchains
-        run: |
-          rustup default nightly
-          rustup target add aarch64-unknown-linux-musl x86_64-unknown-linux-musl
-          rustup component add rust-src llvm-tools-preview
-          rustup update
-          cargo install cargo-zigbuild
+      - name: Setup Rust environment
+        uses: ./.github/actions/setup
+        with:
+          rust-version: stable
+          cache-shared-key: ci-test-${{ hashFiles('**/Cargo.lock') }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          cache-save-if: ${{ github.ref == 'refs/heads/main' }}
 
-      - name: Clone rustfs sources
+      - name: Run tests
         run: |
-          git clone --depth 1 https://github.com/rustfs/rustfs
+          cargo nextest run --all --exclude e2e_test
+          cargo test --all --doc
 
-      - name: Build rustfs
+      - name: Check code formatting
+        run: cargo fmt --all --check
+
+      - name: Run clippy lints
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+  e2e-tests:
+    name: End-to-End Tests
+    needs: skip-check
+    if: needs.skip-check.outputs.should_skip != 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Rust environment
+        uses: ./.github/actions/setup
+        with:
+          rust-version: stable
+          cache-shared-key: ci-e2e-${{ hashFiles('**/Cargo.lock') }}
+          cache-save-if: ${{ github.ref == 'refs/heads/main' }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install s3s-e2e test tool
+        uses: taiki-e/cache-cargo-install-action@v2
+        with:
+          tool: s3s-e2e
+          git: https://github.com/Nugine/s3s.git
+          rev: b7714bfaa17ddfa9b23ea01774a1e7bbdbfc2ca3
+
+      - name: Build debug binary
         run: |
-          cd rustfs
-          export CC="zig cc -target aarch64-linux-musl"       
-          unset CC
-          unset CFLAGS
-          unset TARGET_CFLAGS
-          unset CFLAGS_aarch64_unknown_linux_musl
-          # unset CARGO_TARGET         
-          # ./build-rustfs.sh --platform aarch64-unknown-linux-musl --skip-verification || true
-          cargo install cross
-          cross build --target aarch64-unknown-linux-musl -r
+          touch rustfs/build.rs
+          cargo build -p rustfs --bins
 
-      - name: Upload release version
+      - name: Run end-to-end tests
+        run: |
+          s3s-e2e --version
+          ./scripts/e2e-run.sh ./target/debug/rustfs /tmp/rustfs
+
+      - name: Upload test logs
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: thread-opt(debug)
-          compression-level: 9
-          path: rustfs/release/aarch64-unknown-linux-musl/rustfs
-
+          name: e2e-test-logs-${{ github.run_number }}
+          path: /tmp/rustfs.log
+          retention-days: 3

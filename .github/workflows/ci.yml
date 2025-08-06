@@ -36,7 +36,6 @@ jobs:
       - name: Setup rust toolchains
         run: |
           rustup default nightly
-          rustup target add aarch64-linux-android armv7-linux-androideabi x86_64-linux-android i686-linux-android
           rustup target add aarch64-unknown-linux-musl x86_64-unknown-linux-musl
           rustup component add rust-src llvm-tools-preview
           rustup update
@@ -49,7 +48,12 @@ jobs:
       - name: Build rustfs
         run: |
           cd rustfs
-          export CC="zig cc -target aarch64-linux-musl"
+          export CC="zig cc -target aarch64-linux-musl"       
+          unset CC
+          unset CFLAGS
+          unset TARGET_CFLAGS
+          unset CFLAGS_aarch64_unknown_linux_musl
+          # unset CARGO_TARGET         
           ./build-rustfs.sh --platform aarch64-unknown-linux-musl --skip-verification
 
       - name: Upload release version

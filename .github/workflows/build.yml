@@ -218,7 +218,8 @@ jobs:
 
       - name: Setup rust toolchains
         run: |
-          rustup default nightly
+          rustup default stable
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain stable --profile default -y
           rustup target add aarch64-linux-android armv7-linux-androideabi x86_64-linux-android i686-linux-android
           rustup component add rust-src llvm-tools-preview
           rustup component add rust-src --toolchain nightly-x86_64-unknown-linux-gnu
@@ -229,10 +230,8 @@ jobs:
         shell: bash
         run: |
           # Force rebuild by touching build.rs
-          touch rustfs/build.rs
-          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain nightly --profile default -y
-          rustup default nightly
-          cargo +nightly zigbuild -r --target ${{ matrix.target }} -p rustfs --bins -Z trim-paths -Z build-std
+          touch rustfs/build.rs          
+          cargo zigbuild -r --target ${{ matrix.target }} -p rustfs --bins
 
       - name: Create release package
         id: package

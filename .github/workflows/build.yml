@@ -209,7 +209,7 @@ jobs:
              patch -p1 -F 3 < $i && git add  . && git commit -m "auto commit" || git reset --hard
              git clean -df
           done
-          git add  . && git commit -m "auto commit"
+          # git add  . && git commit -m "auto commit" || true
           
       - name: Build RustFS
         shell: bash

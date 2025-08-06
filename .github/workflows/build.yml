@@ -191,6 +191,16 @@ jobs:
           rustup component add rust-src --toolchain nightly-x86_64-unknown-linux-musl
           rustup update
 
+      - name: Configure Git
+        run: |
+          git config --global user.name "Numbersf"
+          git config --global user.email "263623064@qq.com"
+          
+      - name: Setup TimeZone
+        run: |
+          sudo -E rm -rf /etc/localtime
+          sudo -E ln -s /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+  
       - name: Fix upstream bugs
         run: |          
           cd kernel_workspace/kernel_platform/common

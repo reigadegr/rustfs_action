@@ -11,9 +11,9 @@ jobs:
       - name: Other deps
         run: |
           sudo apt update
-          sudo apt install gcc-multilib llvm clang zig \
+          sudo apt install gcc-multilib llvm clang \
           make cmake linux-modules-extra-"$(uname -r)"
-          
+          sudo snap install zig --classic --beta
       - name: Optimize Memory Management
         run: |
           sudo -E sysctl vm.swappiness=1

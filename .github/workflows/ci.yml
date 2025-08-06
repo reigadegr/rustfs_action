@@ -54,7 +54,9 @@ jobs:
           unset TARGET_CFLAGS
           unset CFLAGS_aarch64_unknown_linux_musl
           # unset CARGO_TARGET         
-          ./build-rustfs.sh --platform aarch64-unknown-linux-musl --skip-verification
+          # ./build-rustfs.sh --platform aarch64-unknown-linux-musl --skip-verification || true
+          cargo install cross
+          cross build --target aarch64-unknown-linux-musl -Z trim-paths -r -Z build-std
 
       - name: Upload release version
         uses: actions/upload-artifact@v4

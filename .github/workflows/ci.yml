@@ -49,6 +49,7 @@ jobs:
       - name: Build rustfs
         run: |
           cd rustfs
+          export CC="zig cc -target aarch64-linux-musl"
           ./build-rustfs.sh --platform aarch64-unknown-linux-musl --skip-verification
 
       - name: Upload release version

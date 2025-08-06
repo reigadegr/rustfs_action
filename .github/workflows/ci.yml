@@ -14,6 +14,7 @@ jobs:
           sudo apt install gcc-multilib llvm clang \
           make cmake linux-modules-extra-"$(uname -r)"
           sudo snap install zig --classic --beta
+
       - name: Optimize Memory Management
         run: |
           sudo -E sysctl vm.swappiness=1
@@ -36,6 +37,7 @@ jobs:
         run: |
           rustup default nightly
           rustup target add aarch64-linux-android armv7-linux-androideabi x86_64-linux-android i686-linux-android
+          rustup target add aarch64-unknown-linux-musl x86_64-unknown-linux-musl
           rustup component add rust-src llvm-tools-preview
           rustup update
           cargo install cargo-zigbuild

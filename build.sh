@@ -1,0 +1,16 @@
+#!/bin/bash
+export RUSTFLAGS="
+    -C llvm-args=-enable-ml-inliner=release \
+    -C llvm-args=-inliner-interactive-include-default \
+    -C llvm-args=-ml-inliner-model-selector=arm64-mixed \
+    -C llvm-args=-ml-inliner-skip-policy=if-caller-not-cold \
+    -C link-args=-fomit-frame-pointer \
+    -C llvm-args=-mergefunc-use-aliases \
+    -C llvm-args=-enable-shrink-wrap=1 \
+    -C llvm-args=-enable-gvn-hoist \
+    -C llvm-args=-enable-loop-versioning-licm \
+    -C link-args=-Wl,-O3,--gc-sections,--as-needed \
+    -C link-args=-Wl,-z,norelro,-x,-s,--strip-all,-z,now
+" 
+
+cargo zigbuild -r --target "$1" -p rustfs --bins

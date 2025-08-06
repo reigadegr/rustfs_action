@@ -217,8 +217,8 @@ jobs:
         shell: bash
         run: |
           # Force rebuild by touching build.rs
-          touch rustfs/build.rs          
-          cargo zigbuild -r --target ${{ matrix.target }} -p rustfs --bins
+          touch rustfs/build.rs
+          sh build.sh "${{ matrix.target }}"          
 
       - name: Create release package
         id: package

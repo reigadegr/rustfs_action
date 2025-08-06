@@ -230,7 +230,7 @@ jobs:
           touch rustfs/build.rs
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain nightly --profile default -y
           rustup default nightly
-          cargo zigbuild -r --target ${{ matrix.target }} -p rustfs --bins -Z trim-paths -Z build-std
+          cargo +nightly zigbuild -r --target ${{ matrix.target }} -p rustfs --bins -Z trim-paths -Z build-std
 
       - name: Create release package
         id: package

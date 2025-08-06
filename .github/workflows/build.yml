@@ -202,8 +202,7 @@ jobs:
           sudo -E ln -s /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
   
       - name: Fix upstream bugs
-        run: |          
-          cd kernel_workspace/kernel_platform/common
+        run: |
           git add  . && git commit -m "auto commit"
           for i in "disable_scanner.patch"; do
              wget https://github.com/reigadegr/rustfs_compile/raw/main/patchs/$i

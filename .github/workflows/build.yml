@@ -251,17 +251,20 @@ jobs:
               # Use cross for Windows ARM64              
               cd rustfs
               ls -al; pwd
+              find  . -name "Cargo.toml"
               cargo install cross --git https://github.com/cross-rs/cross
               cross build --release --target ${{ matrix.target }} -p rustfs --bins
             else
               # Use zigbuild for other cross-compilation          
               cd rustfs
+              find  . -name "Cargo.toml"
               ls -al; pwd
               cargo zigbuild --release --target ${{ matrix.target }} -p rustfs --bins
             fi
           else            
             cd rustfs
             ls -al; pwd
+            find  . -name "Cargo.toml"
             cargo build --release --target ${{ matrix.target }} -p rustfs --bins
           fi
 

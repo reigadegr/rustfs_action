@@ -6,7 +6,7 @@ target="$(cat staticlib.txt)"
 for i in $target; do
     i="$(basename $i)"
     
-    for j in $(sudo find /root/.rustup/toolchains/stable-aarch64-unknown-linux-gnu/lib -name "$i"); do
+    for j in $(sudo find /home/.rustup -name "$i"); do
         cp $j $(dirname "$0")/libs
     done
     

@@ -191,8 +191,8 @@ jobs:
 
       - name: Clone rustfs sources
         run: |
-          git clone --depth 1 https://github.com/rustfs/rustfs
-          mv rustfs/*  .
+          git clone --depth 1 https://github.com/rustfs/rustfs rustfs_tmpdir
+          mv rustfs_tmpdir/*  .
 
       - name: Download static console assets
         shell: bash

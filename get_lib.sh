@@ -4,5 +4,13 @@ mkdir -p $(dirname "$0")/libs
 target="$(cat staticlib.txt)"
 
 for i in $target; do
-    cp $i $(dirname "$0")/libs
+    i="$(basename $i)"
+    
+    for j in $(find /root/.rustup/toolchains/stable-aarch64-unknown-linux-gnu/lib -name "$i"); do
+        cp $j $(dirname "$0")/libs
+    done
+    
+    for j in $(find /usr/lib -name "$i"); do
+        cp $j $(dirname "$0")/libs
+    done
 done

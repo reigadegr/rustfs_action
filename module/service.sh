@@ -34,7 +34,7 @@ killall -15 mc
 chmod +x $MODDIR/mc
 sleep 1
 # 起别名
-$MODDIR/mc alias set myminio http://localhost:9000 rustfsadmin rustfsadmin
+$MODDIR/mc alias set myminio "http://localhost$RUSTFS_ADDRESS" rustfsadmin rustfsadmin
 
 # 创建桶
 $MODDIR/mc mb myminio/mybucket

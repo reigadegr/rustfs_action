@@ -11,7 +11,7 @@ export RUSTFLAGS="
     -C llvm-args=-enable-shrink-wrap=1 \
     -C llvm-args=-enable-gvn-hoist \
     -C llvm-args=-enable-loop-versioning-licm \
-    -C link-args=-Wl,-O3,--gc-sections,--as-needed \
+    -C link-args=-Wl,-O3,--gc-sections \
     -C link-args=-Wl,-z,norelro,-x,-s,--strip-all,-z,now \
     -C linker=mold \
     -C link-arg=-fuse-ld=mold
@@ -20,5 +20,9 @@ export RUSTFLAGS="
 which mold  
 mold --version  
 echo "RUSTFLAGS: $RUSTFLAGS"
+
+rm -rf Cargo.lock
+
+export CARGO_TERM_COLOR=always
 
 cargo +nightly zigbuild -r --target "$1" -p rustfs --bins -Z build-std -Z trim-paths

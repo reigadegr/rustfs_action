@@ -2,6 +2,8 @@
 export RUSTFLAGS="
     -Z remap-cwd-prefix=. \
     -Z dep-info-omit-d-target \
+    -Z virtual-function-elimination \
+    -Z merge-functions=aliases \
     -C llvm-args=-enable-ml-inliner=release \
     -C llvm-args=-inliner-interactive-include-default \
     -C llvm-args=-ml-inliner-model-selector=arm64-mixed \

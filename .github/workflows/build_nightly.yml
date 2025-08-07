@@ -290,6 +290,24 @@ jobs:
           name: aarch64_mc
           path: mc
 
+ integration-magisk:
+    name: Integration Magisk
+    needs: [build-mc]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: 下载 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: aarch64_mc
+
+      - name: 查看下载内容
+        run: ls -l
+  
   # Build summary
   build-summary:
     name: Build Summary

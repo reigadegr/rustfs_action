@@ -173,7 +173,7 @@ jobs:
              patch -p1 -F 3 < $i && git add  . && git commit -m "auto commit" || git reset --hard
              git clean -df
           done
-          npm run build
+          pnpm build
           cd  ..
           mkdir -p ./rustfs/static
           cp -rf rustfs_consule/dist/* ./rustfs/static

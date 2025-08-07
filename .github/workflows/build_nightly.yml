@@ -164,7 +164,8 @@ jobs:
           # pnpm add -D @types/lodash
           # pnpm add lodash-es
           # pnpm add -D @types/lodash-es
-          pnpm install        
+          rm -f pnpm-lock.yaml       
+          pnpm install
           git add  . && git commit -m "auto commit" || true
           for i in "fix_seemly.patch" \
             "fix_loaddash.patch" \

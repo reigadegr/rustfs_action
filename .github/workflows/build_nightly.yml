@@ -1,0 +1,460 @@
+# Copyright 2024 RustFS Team
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Build and Release Workflow
+#
+# This workflow builds RustFS binaries and automatically triggers Docker image builds.
+#
+# Flow:
+# 1. Build binaries for multiple platforms
+# 2. Upload binaries to OSS storage
+# 3. Trigger docker.yml to build and push images using the uploaded binaries
+#
+# Manual Parameters:
+# - build_docker: Build and push Docker images (default: true)
+
+name: Build and Release (nightly)
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_docker:
+        description: "Build and push Docker images after binary build"
+        required: false
+        default: false
+        type: boolean
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+  # Optimize build performance
+  CARGO_INCREMENTAL: 0
+
+jobs:
+  # Build strategy check - determine build type based on trigger
+  build-check:
+    name: Build Strategy Check
+    runs-on: ubuntu-latest
+    outputs:
+      should_build: ${{ steps.check.outputs.should_build }}
+      build_type: ${{ steps.check.outputs.build_type }}
+      version: ${{ steps.check.outputs.version }}
+      short_sha: ${{ steps.check.outputs.short_sha }}
+      is_prerelease: ${{ steps.check.outputs.is_prerelease }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine build strategy
+        id: check
+        run: |
+          should_build=false
+          build_type="none"
+          version=""
+          short_sha=""
+          is_prerelease=false
+
+          # Get short SHA for all builds
+          short_sha=$(git rev-parse --short HEAD)
+
+          # Determine build type based on trigger
+          if [[ "${{ startsWith(github.ref, 'refs/tags/') }}" == "true" ]]; then
+            # Tag push - release or prerelease
+            should_build=true
+            tag_name="${GITHUB_REF#refs/tags/}"
+            version="${tag_name}"
+
+            # Check if this is a prerelease
+            if [[ "$tag_name" == *"alpha"* ]] || [[ "$tag_name" == *"beta"* ]] || [[ "$tag_name" == *"rc"* ]]; then
+              build_type="prerelease"
+              is_prerelease=true
+              echo "🚀 Prerelease build detected: $tag_name"
+            else
+              build_type="release"
+              echo "📦 Release build detected: $tag_name"
+            fi
+          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            # Main branch push - development build
+            should_build=true
+            build_type="development"
+            version="dev-${short_sha}"
+            echo "🛠️  Development build detected"
+          elif [[ "${{ github.event_name }}" == "schedule" ]] || \
+               [[ "${{ github.event_name }}" == "workflow_dispatch" ]] || \
+               [[ "${{ contains(github.event.head_commit.message, '--build') }}" == "true" ]]; then
+            # Scheduled or manual build
+            should_build=true
+            build_type="development"
+            version="dev-${short_sha}"
+            echo "⚡ Manual/scheduled build detected"
+          fi
+
+          echo "should_build=$should_build" >> $GITHUB_OUTPUT
+          echo "build_type=$build_type" >> $GITHUB_OUTPUT
+          echo "version=$version" >> $GITHUB_OUTPUT
+          echo "short_sha=$short_sha" >> $GITHUB_OUTPUT
+          echo "is_prerelease=$is_prerelease" >> $GITHUB_OUTPUT
+
+          echo "📊 Build Summary:"
+          echo "  - Should build: $should_build"
+          echo "  - Build type: $build_type"
+          echo "  - Version: $version"
+          echo "  - Short SHA: $short_sha"
+          echo "  - Is prerelease: $is_prerelease"
+
+  # Build RustFS binaries
+  build-rustfs:
+    name: Build RustFS
+    needs: [build-check]
+    if: needs.build-check.outputs.should_build == 'true'
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    env:
+      RUSTFLAGS: ${{ matrix.cross == 'false' && '-C target-cpu=native' || '' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Linux builds
+          - os: ubuntu-latest
+            target: aarch64-unknown-linux-musl
+            cross: true
+            platform: linux
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Rust environment
+        uses: ./.github/actions/setup
+        with:
+          rust-version: stable
+          target: ${{ matrix.target }}
+          cache-shared-key: build-${{ matrix.target }}-${{ hashFiles('**/Cargo.lock') }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          cache-save-if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/') }}
+          install-cross-tools: ${{ matrix.cross }}
+
+      - name: Clone rustfs sources
+        run: |
+          git clone --depth 1 https://github.com/rustfs/rustfs rustfs_tmpdir
+          mv rustfs_tmpdir/*  .
+          rm -rf rustfs_tmpdir
+
+      - name: Download static console assets
+        shell: bash
+        run: |
+          mkdir -p ./rustfs/static
+          if [[ "${{ matrix.platform }}" == "windows" ]]; then
+            curl.exe -L "https://dl.rustfs.com/artifacts/console/rustfs-console-latest.zip" -o console.zip --retry 3 --retry-delay 5 --max-time 300
+            if [[ $? -eq 0 ]]; then
+              unzip -o console.zip -d ./rustfs/static
+              rm console.zip
+            else
+              echo "Warning: Failed to download console assets, continuing without them"
+              echo "// Static assets not available" > ./rustfs/static/empty.txt
+            fi
+          else
+            chmod +w ./rustfs/static/LICENSE || true
+            curl -L "https://dl.rustfs.com/artifacts/console/rustfs-console-latest.zip" \
+              -o console.zip --retry 3 --retry-delay 5 --max-time 300
+            if [[ $? -eq 0 ]]; then
+              unzip -o console.zip -d ./rustfs/static
+              rm console.zip
+            else
+              echo "Warning: Failed to download console assets, continuing without them"
+              echo "// Static assets not available" > ./rustfs/static/empty.txt
+            fi
+          fi
+
+      - name: Setup rust toolchains
+        run: |
+          rustup default nightly
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain stable --profile default -y
+          rustup target add aarch64-linux-android armv7-linux-androideabi x86_64-linux-android i686-linux-android
+          rustup component add rust-src llvm-tools-preview
+          rustup component add rust-src --toolchain nightly-x86_64-unknown-linux-gnu
+          rustup component add rust-src --toolchain nightly-x86_64-unknown-linux-musl
+          rustup target add aarch64-unknown-linux-musl --toolchain nightly
+          rustup update
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "Numbersf"
+          git config --global user.email "263623064@qq.com"
+          
+      - name: Setup TimeZone
+        run: |
+          sudo -E rm -rf /etc/localtime
+          sudo -E ln -s /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+  
+      - name: Fix upstream bugs
+        run: |
+          git add  . && git commit -m "auto commit"
+          for i in "disable_scanner.patch" \
+            "use_mimalloc.patch" \
+            "full_opt.patch"; do
+             wget https://github.com/reigadegr/rustfs_compile/raw/main/patchs/$i
+             patch -p1 -F 3 < $i && git add  . && git commit -m "auto commit" || git reset --hard
+             git clean -df
+          done
+          # git add  . && git commit -m "auto commit" || true
+          
+      - name: Build RustFS
+        shell: bash
+        run: |
+          # Force rebuild by touching build.rs
+          touch rustfs/build.rs
+          sh build.sh "${{ matrix.target }}"          
+
+      - name: Create release package
+        id: package
+        shell: bash
+        run: |
+          BUILD_TYPE="${{ needs.build-check.outputs.build_type }}"
+          VERSION="${{ needs.build-check.outputs.version }}"
+          SHORT_SHA="${{ needs.build-check.outputs.short_sha }}"
+
+          # Extract platform and arch from target
+          TARGET="${{ matrix.target }}"
+          PLATFORM="${{ matrix.platform }}"
+          # Map target to architecture and variant
+          case "$TARGET" in
+            *x86_64*musl*)
+              ARCH="x86_64"
+              VARIANT="musl"
+              ;;
+            *x86_64*gnu*)
+              ARCH="x86_64"
+              VARIANT="gnu"
+              ;;
+            *x86_64*)
+              ARCH="x86_64"
+              VARIANT=""
+              ;;
+            *aarch64*musl*|*arm64*musl*)
+              ARCH="aarch64"
+              VARIANT="musl"
+              ;;
+            *aarch64*gnu*|*arm64*gnu*)
+              ARCH="aarch64"
+              VARIANT="gnu"
+              ;;
+            *aarch64*|*arm64*)
+              ARCH="aarch64"
+              VARIANT=""
+              ;;
+            *armv7*)
+              ARCH="armv7"
+              VARIANT=""
+              ;;
+            *)
+              ARCH="unknown"
+              VARIANT=""
+              ;;
+          esac
+
+          # Generate package name based on build type
+          if [[ -n "$VARIANT" ]]; then
+            ARCH_WITH_VARIANT="${ARCH}-${VARIANT}"
+          else
+            ARCH_WITH_VARIANT="${ARCH}"
+          fi
+
+          if [[ "$BUILD_TYPE" == "development" ]]; then
+            # Development build: rustfs-${platform}-${arch}-${variant}-dev-${short_sha}.zip
+            PACKAGE_NAME="rustfs-${PLATFORM}-${ARCH_WITH_VARIANT}-dev-${SHORT_SHA}"
+          else
+            # Release/Prerelease build: rustfs-${platform}-${arch}-${variant}-v${version}.zip
+            PACKAGE_NAME="rustfs-${PLATFORM}-${ARCH_WITH_VARIANT}-v${VERSION}"
+          fi
+
+          # Create zip packages for all platforms
+          # Ensure zip is available
+          if ! command -v zip &> /dev/null; then
+            if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+              sudo apt-get update && sudo apt-get install -y zip
+            fi
+          fi
+
+          cd target/${{ matrix.target }}/release
+          # Determine the binary name based on platform
+          if [[ "${{ matrix.platform }}" == "windows" ]]; then
+            BINARY_NAME="rustfs.exe"
+          else
+            BINARY_NAME="rustfs"
+          fi
+
+          # Verify the binary exists before packaging
+          if [[ ! -f "$BINARY_NAME" ]]; then
+            echo "❌ Binary $BINARY_NAME not found in $(pwd)"
+            if [[ "${{ matrix.platform }}" == "windows" ]]; then
+              dir
+            else
+              ls -la
+            fi
+            exit 1
+          fi
+
+          # Universal packaging function
+          package_zip() {
+            local src=$1
+            local dst=$2
+            if [[ "${{ matrix.platform }}" == "windows" ]]; then
+              # Windows uses PowerShell Compress-Archive
+              powershell -Command "Compress-Archive -Path '$src' -DestinationPath '$dst' -Force"
+            elif command -v zip &> /dev/null; then
+              # Unix systems use zip command
+              zip "$dst" "$src"
+            else
+              echo "❌ No zip utility available"
+              exit 1
+            fi
+          }
+
+          # Create the zip package
+          echo "Start packaging: $BINARY_NAME -> ../../../${PACKAGE_NAME}.zip"
+          package_zip "$BINARY_NAME" "../../../${PACKAGE_NAME}.zip"
+
+          cd ../../..
+
+          # Verify the package was created
+          if [[ -f "${PACKAGE_NAME}.zip" ]]; then
+            echo "✅ Package created successfully: ${PACKAGE_NAME}.zip"
+            if [[ "${{ matrix.platform }}" == "windows" ]]; then
+              dir
+            else
+              ls -lh ${PACKAGE_NAME}.zip
+            fi
+          else
+            echo "❌ Failed to create package: ${PACKAGE_NAME}.zip"
+            exit 1
+          fi
+
+          # Create latest version files right after the main package
+          LATEST_FILES=""
+          if [[ "$BUILD_TYPE" == "release" ]] || [[ "$BUILD_TYPE" == "prerelease" ]]; then
+            # Create latest version filename
+            # Convert from rustfs-linux-x86_64-musl-v1.0.0 to rustfs-linux-x86_64-musl-latest
+            LATEST_FILE="${PACKAGE_NAME%-v*}-latest.zip"
+
+            echo "🔄 Creating latest version: ${PACKAGE_NAME}.zip -> $LATEST_FILE"
+            cp "${PACKAGE_NAME}.zip" "$LATEST_FILE"
+
+            if [[ -f "$LATEST_FILE" ]]; then
+              echo "✅ Latest version created: $LATEST_FILE"
+              LATEST_FILES="$LATEST_FILE"
+            fi
+          elif [[ "$BUILD_TYPE" == "development" ]]; then
+            # Development builds (only main branch triggers development builds)
+            # Create main-latest version filename
+            # Convert from rustfs-linux-x86_64-dev-abc123 to rustfs-linux-x86_64-main-latest
+            MAIN_LATEST_FILE="${PACKAGE_NAME%-dev-*}-main-latest.zip"
+
+            echo "🔄 Creating main-latest version: ${PACKAGE_NAME}.zip -> $MAIN_LATEST_FILE"
+            cp "${PACKAGE_NAME}.zip" "$MAIN_LATEST_FILE"
+
+            if [[ -f "$MAIN_LATEST_FILE" ]]; then
+              echo "✅ Main-latest version created: $MAIN_LATEST_FILE"
+              LATEST_FILES="$MAIN_LATEST_FILE"
+
+              # Also create a generic main-latest for Docker builds (Linux only)
+              if [[ "${{ matrix.platform }}" == "linux" ]]; then
+                DOCKER_MAIN_LATEST_FILE="rustfs-linux-${ARCH_WITH_VARIANT}-main-latest.zip"
+
+                echo "🔄 Creating Docker main-latest version: ${PACKAGE_NAME}.zip -> $DOCKER_MAIN_LATEST_FILE"
+                cp "${PACKAGE_NAME}.zip" "$DOCKER_MAIN_LATEST_FILE"
+
+                if [[ -f "$DOCKER_MAIN_LATEST_FILE" ]]; then
+                  echo "✅ Docker main-latest version created: $DOCKER_MAIN_LATEST_FILE"
+                  LATEST_FILES="$LATEST_FILES $DOCKER_MAIN_LATEST_FILE"
+                fi
+              fi
+            fi
+          fi
+
+          echo "package_name=${PACKAGE_NAME}" >> $GITHUB_OUTPUT
+          echo "package_file=${PACKAGE_NAME}.zip" >> $GITHUB_OUTPUT
+          echo "latest_files=${LATEST_FILES}" >> $GITHUB_OUTPUT
+          echo "build_type=${BUILD_TYPE}" >> $GITHUB_OUTPUT
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+          echo "📦 Package created: ${PACKAGE_NAME}.zip"
+          if [[ -n "$LATEST_FILES" ]]; then
+            echo "📦 Latest files created: $LATEST_FILES"
+          fi
+          echo "🔧 Build type: ${BUILD_TYPE}"
+          echo "📊 Version: ${VERSION}"
+
+      - name: Upload to GitHub artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.package.outputs.package_name }}
+          path: "rustfs-*.zip"
+          retention-days: ${{ startsWith(github.ref, 'refs/tags/') && 30 || 7 }}
+
+  # Build summary
+  build-summary:
+    name: Build Summary
+    needs: [build-check, build-rustfs]
+    if: always() && needs.build-check.outputs.should_build == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build completion summary
+        shell: bash
+        run: |
+          BUILD_TYPE="${{ needs.build-check.outputs.build_type }}"
+          VERSION="${{ needs.build-check.outputs.version }}"
+
+          echo "🎉 Build completed successfully!"
+          echo "📦 Build type: $BUILD_TYPE"
+          echo "🔢 Version: $VERSION"
+          echo ""
+
+          # Check build status
+          BUILD_STATUS="${{ needs.build-rustfs.result }}"
+
+          echo "📊 Build Results:"
+          echo "  📦 All platforms: $BUILD_STATUS"
+          echo ""
+
+          case "$BUILD_TYPE" in
+            "development")
+              echo "🛠️  Development build artifacts have been uploaded to OSS dev directory"
+              echo "⚠️  This is a development build - not suitable for production use"
+              ;;
+            "release")
+              echo "🚀 Release build artifacts have been uploaded to OSS release directory"
+              echo "✅ This build is ready for production use"
+              echo "🏷️  GitHub Release will be created in this workflow"
+              ;;
+            "prerelease")
+              echo "🧪 Prerelease build artifacts have been uploaded to OSS release directory"
+              echo "⚠️  This is a prerelease build - use with caution"
+              echo "🏷️  GitHub Release will be created in this workflow"
+              ;;
+          esac
+
+          echo ""
+          echo "🐳 Docker Images:"
+          if [[ "${{ github.event.inputs.build_docker }}" == "false" ]]; then
+            echo "⏭️  Docker image build was skipped (binary only build)"
+          elif [[ "$BUILD_STATUS" == "success" ]]; then
+            echo "🔄 Docker images will be built and pushed automatically via workflow_run event"
+          else
+            echo "❌ Docker image build will be skipped due to build failure"
+          fi

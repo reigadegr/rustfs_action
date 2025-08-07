@@ -30,11 +30,13 @@ echo "description=访问$ip$RUSTFS_ADDRESS" >> $MODDIR/module.prop
 export MC_CONFIG_DIR="/sdcard/Android/rustfs/.mc"  
 mkdir -p "$MC_CONFIG_DIR"
 
+killall -15 mc
+chmod +x $MODDIR/mc
 # 起别名
-./mc alias set myminio http://localhost:9000 rustfsadmin rustfsadmin
+$MODDIR/mc alias set myminio http://localhost:9000 rustfsadmin rustfsadmin
 
 # 创建桶
-./mc mb myminio/mybucket
+$MODDIR/mc mb myminio/mybucket
 
 # 设置桶为公开访问：
-./mc anonymous set public myminio/mybucket
+$MODDIR/mc anonymous set public myminio/mybucket

@@ -290,7 +290,7 @@ jobs:
           name: aarch64_mc
           path: mc
 
- integration-magisk:
+  integration-magisk:
     name: Integration Magisk
     needs: [build-mc]
     runs-on: ubuntu-latest

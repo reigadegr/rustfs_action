@@ -183,31 +183,6 @@ jobs:
           cd  ..
           mkdir -p ./rustfs/static
           cp -rf rustfs_consule/dist/* ./rustfs/static
-      # - name: Download static console assets
-        # shell: bash
-        # run: |
-          # mkdir -p ./rustfs/static
-          # if [[ "${{ matrix.platform }}" == "windows" ]]; then
-            # curl.exe -L "https://dl.rustfs.com/artifacts/console/rustfs-console-latest.zip" -o console.zip --retry 3 --retry-delay 5 --max-time 300
-            # if [[ $? -eq 0 ]]; then
-              # unzip -o console.zip -d ./rustfs/static
-              # rm console.zip
-            # else
-              # echo "Warning: Failed to download console assets, continuing without them"
-              # echo "// Static assets not available" > ./rustfs/static/empty.txt
-            # fi
-          # else
-            # chmod +w ./rustfs/static/LICENSE || true
-            # curl -L "https://dl.rustfs.com/artifacts/console/rustfs-console-latest.zip" \
-              # -o console.zip --retry 3 --retry-delay 5 --max-time 300
-            # if [[ $? -eq 0 ]]; then
-              # unzip -o console.zip -d ./rustfs/static
-              # rm console.zip
-            # else
-              # echo "Warning: Failed to download console assets, continuing without them"
-              # echo "// Static assets not available" > ./rustfs/static/empty.txt
-            # fi
-          # fi
 
       - name: Setup rust toolchains
         run: |
@@ -304,9 +279,9 @@ jobs:
       - name: Build Minio Client
         shell: bash
         run: |
-          export GOOS=linux
+          export GOOS=linux CGO_ENABLED=0
           export GOARCH="${{ matrix.target }}"
-          CGO_ENABLED=0 go build -ldflags="-s -w" -trimpath -gcflags=""
+          go build -trimpath -ldflags "-s -w" -gcflags="all=-B -dwarf=false"
 
       - name: Upload to GitHub artifacts
         uses: actions/upload-artifact@v4

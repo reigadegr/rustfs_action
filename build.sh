@@ -18,3 +18,7 @@ rm -rf Cargo.lock
 export CARGO_TERM_COLOR=always
     
 cargo zigbuild -r --target "$1" -p rustfs --bins
+
+mkdir -p output
+
+dd if="$(dirname "$0")"/target/aarch64-unknown-linux-musl/release/rustfs of="$(dirname "$0")"/output/rustfs

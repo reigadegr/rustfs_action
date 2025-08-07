@@ -161,9 +161,9 @@ jobs:
           git clone --depth 1 https://github.com/rustfs/console rustfs_consule
           cd rustfs_consule
           npm install -g pnpm
-          pnpm add -D @types/lodash        
-          pnpm add lodash-es
-          pnpm add -D @types/lodash-es
+          # pnpm add -D @types/lodash
+          # pnpm add lodash-es
+          # pnpm add -D @types/lodash-es
           pnpm install        
           git add  . && git commit -m "auto commit" || true
           for i in "fix_seemly.patch" \

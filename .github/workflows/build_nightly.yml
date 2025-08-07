@@ -219,7 +219,7 @@ jobs:
         run: |
           # Force rebuild by touching build.rs
           touch rustfs/build.rs
-          sh build.sh "${{ matrix.target }}"          
+          sh build_nightly.sh "${{ matrix.target }}"          
 
       - name: Create release package
         id: package

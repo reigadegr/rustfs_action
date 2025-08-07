@@ -10,7 +10,11 @@ export RUSTFLAGS="
     -C llvm-args=-enable-gvn-hoist \
     -C llvm-args=-enable-loop-versioning-licm \
     -C link-args=-Wl,-O3,--gc-sections,--as-needed \
-    -C link-args=-Wl,-z,norelro,-x,-s,--strip-all,-z,now
+    -C link-args=-Wl,-z,norelro,-x,-s,--strip-all,-z,now \
+    -C link-arg=-fuse-ld=mold
 " 
+which mold  
+mold --version  
+echo "RUSTFLAGS: $RUSTFLAGS"
 
 cargo +nightly zigbuild -r --target "$1" -p rustfs --bins -Z build-std -Z trim-paths

@@ -32,6 +32,7 @@ mkdir -p "$MC_CONFIG_DIR"
 
 killall -15 mc
 chmod +x $MODDIR/mc
+sleep 1
 # 起别名
 $MODDIR/mc alias set myminio http://localhost:9000 rustfsadmin rustfsadmin
 

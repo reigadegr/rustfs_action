@@ -306,7 +306,9 @@ jobs:
           name: aarch64_mc
 
       - name: 查看下载内容
-        run: ls -l
+        run: |
+          ls -al
+          file *
   
   # Build summary
   build-summary:

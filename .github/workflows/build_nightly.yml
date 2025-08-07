@@ -227,7 +227,8 @@ jobs:
           name: rustfs_"${{ matrix.target }}"
           path: output/*
           retention-days: ${{ startsWith(github.ref, 'refs/tags/') && 30 || 7 }}
-
+          compression-level: 9
+ 
   # Build summary
   build-summary:
     name: Build Summary

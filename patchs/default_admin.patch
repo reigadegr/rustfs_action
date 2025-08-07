@@ -1,0 +1,15 @@
+diff --git a/pages/auth/login.vue b/pages/auth/login.vue
+index 5c4ea98..aece15e 100644
+--- a/pages/auth/login.vue
++++ b/pages/auth/login.vue
+@@ -11,8 +11,8 @@ const route = useRoute()
+ 
+ const method = ref('accessKeyAndSecretKey')
+ const accessKeyAndSecretKey = ref({
+-  accessKeyId: '',
+-  secretAccessKey: '',
++  accessKeyId: 'rustfsadmin',
++  secretAccessKey: 'rustfsadmin',
+ })
+ 
+ const sts = ref({

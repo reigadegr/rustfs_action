@@ -154,32 +154,45 @@ jobs:
           git clone --depth 1 https://github.com/rustfs/rustfs rustfs_tmpdir
           mv rustfs_tmpdir/*  .
           rm -rf rustfs_tmpdir
-
-      - name: Download static console assets
+          
+      - name: Build static console assets
         shell: bash
         run: |
+          git clone --depth 1 https://github.com/rustfs/console rustfs_consule
+          cd rustfs_consule
+          npm install nuxt@latest react@latest react-dom@latest
+          npm install
+          wget https://github.com/reigadegr/rustfs_compile/raw/main/patchs/default_admin.patch
+          patch -p1 -F 3 < default_admin.patch
+          npm run build
+          cd  ..
           mkdir -p ./rustfs/static
-          if [[ "${{ matrix.platform }}" == "windows" ]]; then
-            curl.exe -L "https://dl.rustfs.com/artifacts/console/rustfs-console-latest.zip" -o console.zip --retry 3 --retry-delay 5 --max-time 300
-            if [[ $? -eq 0 ]]; then
-              unzip -o console.zip -d ./rustfs/static
-              rm console.zip
-            else
-              echo "Warning: Failed to download console assets, continuing without them"
-              echo "// Static assets not available" > ./rustfs/static/empty.txt
-            fi
-          else
-            chmod +w ./rustfs/static/LICENSE || true
-            curl -L "https://dl.rustfs.com/artifacts/console/rustfs-console-latest.zip" \
-              -o console.zip --retry 3 --retry-delay 5 --max-time 300
-            if [[ $? -eq 0 ]]; then
-              unzip -o console.zip -d ./rustfs/static
-              rm console.zip
-            else
-              echo "Warning: Failed to download console assets, continuing without them"
-              echo "// Static assets not available" > ./rustfs/static/empty.txt
-            fi
-          fi
+          cp -rf rustfs_consule/dist/* ./rustfs/static
+      # - name: Download static console assets
+        # shell: bash
+        # run: |
+          # mkdir -p ./rustfs/static
+          # if [[ "${{ matrix.platform }}" == "windows" ]]; then
+            # curl.exe -L "https://dl.rustfs.com/artifacts/console/rustfs-console-latest.zip" -o console.zip --retry 3 --retry-delay 5 --max-time 300
+            # if [[ $? -eq 0 ]]; then
+              # unzip -o console.zip -d ./rustfs/static
+              # rm console.zip
+            # else
+              # echo "Warning: Failed to download console assets, continuing without them"
+              # echo "// Static assets not available" > ./rustfs/static/empty.txt
+            # fi
+          # else
+            # chmod +w ./rustfs/static/LICENSE || true
+            # curl -L "https://dl.rustfs.com/artifacts/console/rustfs-console-latest.zip" \
+              # -o console.zip --retry 3 --retry-delay 5 --max-time 300
+            # if [[ $? -eq 0 ]]; then
+              # unzip -o console.zip -d ./rustfs/static
+              # rm console.zip
+            # else
+              # echo "Warning: Failed to download console assets, continuing without them"
+              # echo "// Static assets not available" > ./rustfs/static/empty.txt
+            # fi
+          # fi
 
       - name: Setup rust toolchains
         run: |

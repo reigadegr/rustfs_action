@@ -256,7 +256,7 @@ jobs:
         include:
           # Linux builds
           - os: ubuntu-latest
-            target: aarch64-unknown-linux-musl
+            target: arm64
             cross: true
             platform: linux
     steps:
@@ -295,7 +295,7 @@ jobs:
         shell: bash
         run: |
           export GOOS=linux
-          export GOARCH=arm64
+          export GOARCH="${{ matrix.target }}"
           CGO_ENABLED=0 go build -ldflags="-s -w" -trimpath -gcflags=""
 
       - name: Upload to GitHub artifacts

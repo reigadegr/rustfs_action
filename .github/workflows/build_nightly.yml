@@ -160,10 +160,19 @@ jobs:
         run: |
           git clone --depth 1 https://github.com/rustfs/console rustfs_consule
           cd rustfs_consule
-          npm install nuxt@latest react@latest react-dom@latest
-          npm install
-          wget https://github.com/reigadegr/rustfs_compile/raw/main/patchs/default_admin.patch
-          patch -p1 -F 3 < default_admin.patch
+          npm install -g pnpm
+          pnpm add -D @types/lodash        
+          pnpm add lodash-es
+          pnpm add -D @types/lodash-es
+          pnpm install        
+          git add  . && git commit -m "auto commit" || true
+          for i in "fix_seemly.patch" \
+            "fix_loaddash.patch" \
+            "default_admin.patch"; do
+             wget https://github.com/reigadegr/rustfs_compile/raw/main/patchs/$i
+             patch -p1 -F 3 < $i && git add  . && git commit -m "auto commit" || git reset --hard
+             git clean -df
+          done
           npm run build
           cd  ..
           mkdir -p ./rustfs/static

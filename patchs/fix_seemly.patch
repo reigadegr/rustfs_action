@@ -1,0 +1,18 @@
+commit bcadb7fa8a7bb7a22f5f207bbd1b23b1bf6db03f
+Author: reigadegr <272268642@qq.com>
+Date:   Thu Aug 7 15:42:49 2025 +0800
+
+    fix: seemly
+
+diff --git a/types/seemly.d.ts b/types/seemly.d.ts
+new file mode 100644
+index 0000000..241b2ce
+--- /dev/null
++++ b/types/seemly.d.ts
+@@ -0,0 +1,6 @@
++declare module 'seemly' {
++  export function changeColor(
++    color: string,
++    offset?: number | { alpha?: number }
++  ): string;
++}

@@ -224,7 +224,7 @@ jobs:
       - name: Upload to GitHub artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: rustfs_"${{ matrix.target }}"
+          name: rustfs_${{ matrix.target }}
           path: output/*
           retention-days: ${{ startsWith(github.ref, 'refs/tags/') && 30 || 7 }}
           compression-level: 9

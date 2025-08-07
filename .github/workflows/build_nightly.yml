@@ -226,6 +226,7 @@ jobs:
         with:
           name: aarch64_rustfs
           path: module/rustfs
+          retention-days: 1
 
   # Build minio client binaries
   build-mc:
@@ -289,6 +290,7 @@ jobs:
         with:
           name: aarch64_mc
           path: mc
+          retention-days: 1
 
   integration-magisk:
     name: Integration Magisk

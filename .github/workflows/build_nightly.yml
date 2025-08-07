@@ -224,15 +224,76 @@ jobs:
       - name: Upload to GitHub artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: Magisk_rustfs_${{ matrix.target }}
-          path: module/*
-          retention-days: ${{ startsWith(github.ref, 'refs/tags/') && 30 || 7 }}
-          compression-level: 9
- 
+          name: aarch64_rustfs
+          path: module/rustfs
+
+  # Build minio client binaries
+  build-mc:
+    name: Build MC
+    needs: [build-check]
+    if: needs.build-check.outputs.should_build == 'true'
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    env:
+      RUSTFLAGS: ${{ matrix.cross == 'false' && '-C target-cpu=native' || '' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Linux builds
+          - os: ubuntu-latest
+            target: aarch64-unknown-linux-musl
+            cross: true
+            platform: linux
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.x'
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install git clang llvm
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "Numbersf"
+          git config --global user.email "263623064@qq.com"
+          
+      - name: Setup TimeZone
+        run: |
+          sudo -E rm -rf /etc/localtime
+          sudo -E ln -s /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+
+      - name: Clone minio client sources
+        run: |
+          git clone --depth 1 https://github.com/minio/mc mc_tmpdir
+          mv mc_tmpdir/*  .
+          rm -rf mc_tmpdir
+
+      - name: Build Minio Client
+        shell: bash
+        run: |
+          export GOOS=linux
+          export GOARCH=arm64
+          CGO_ENABLED=0 go build -ldflags="-s -w" -trimpath -gcflags=""
+
+      - name: Upload to GitHub artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: aarch64_mc
+          path: mc
+
   # Build summary
   build-summary:
     name: Build Summary
-    needs: [build-check, build-rustfs]
+    needs: [build-check, build-rustfs, build-mc]
     if: always() && needs.build-check.outputs.should_build == 'true'
     runs-on: ubuntu-latest
     steps:

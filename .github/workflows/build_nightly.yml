@@ -155,6 +155,11 @@ jobs:
           mv rustfs_tmpdir/*  .
           rm -rf rustfs_tmpdir
           
+      - name: Configure Git
+        run: |
+          git config --global user.name "Numbersf"
+          git config --global user.email "263623064@qq.com"
+
       - name: Build static console assets
         shell: bash
         run: |
@@ -214,11 +219,6 @@ jobs:
           rustup component add rust-src --toolchain nightly-x86_64-unknown-linux-musl
           rustup target add aarch64-unknown-linux-musl --toolchain nightly
           rustup update
-
-      - name: Configure Git
-        run: |
-          git config --global user.name "Numbersf"
-          git config --global user.email "263623064@qq.com"
           
       - name: Setup TimeZone
         run: |

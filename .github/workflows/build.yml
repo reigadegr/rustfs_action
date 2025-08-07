@@ -139,9 +139,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup mold linker  
-        uses: rui314/setup-mold@staging
-  
       - name: Setup Rust environment
         uses: ./.github/actions/setup
         with:

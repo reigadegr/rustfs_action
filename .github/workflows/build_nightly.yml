@@ -21,19 +21,11 @@
 # 2. Upload binaries to OSS storage
 # 3. Trigger docker.yml to build and push images using the uploaded binaries
 #
-# Manual Parameters:
-# - build_docker: Build and push Docker images (default: true)
 
 name: Build and Release (nightly)
 
 on:
   workflow_dispatch:
-    inputs:
-      build_docker:
-        description: "Build and push Docker images after binary build"
-        required: false
-        default: false
-        type: boolean
 
 env:
   CARGO_TERM_COLOR: always
@@ -367,11 +359,3 @@ jobs:
           esac
 
           echo ""
-          echo "🐳 Docker Images:"
-          if [[ "${{ github.event.inputs.build_docker }}" == "false" ]]; then
-            echo "⏭️  Docker image build was skipped (binary only build)"
-          elif [[ "$BUILD_STATUS" == "success" ]]; then
-            echo "🔄 Docker images will be built and pushed automatically via workflow_run event"
-          else
-            echo "❌ Docker image build will be skipped due to build failure"
-          fi

@@ -215,7 +215,7 @@ jobs:
       - name: Upload to GitHub artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: aarch64_rustfs
+          name: x86_64rustfs
           path: module/rustfs
           retention-days: 1
 
@@ -279,7 +279,7 @@ jobs:
       - name: Upload to GitHub artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: aarch64_mc
+          name: x86_64mc
           path: mc
           retention-days: 1
 
@@ -296,12 +296,12 @@ jobs:
       - name: Download mc
         uses: actions/download-artifact@v4
         with:
-          name: aarch64_mc
+          name: x86_64mc
 
       - name: Download rustfs
         uses: actions/download-artifact@v4
         with:
-          name: aarch64_rustfs
+          name: x86_64rustfs
 
       - name: Production magisk module
         run: |

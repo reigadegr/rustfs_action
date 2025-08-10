@@ -307,8 +307,8 @@ jobs:
         run: |
           ls -al
           file *
-          mv mc module
-          mv rustfs module
+          mv mc x86_64-unknown-linux-musl_module
+          mv rustfs x86_64-unknown-linux-musl_module
        
       - name: Upload release version
         uses: actions/upload-artifact@v4

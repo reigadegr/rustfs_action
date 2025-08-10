@@ -197,7 +197,7 @@ jobs:
           rm -rf target && echo "删除了target" || echo "无需删除"
           git add  . && git commit -m "auto commit"
           for i in "disable_scanner.patch" \
-            "use_mimalloc.patch" \
+            "jemalloc_musl_fix.patch" \
             "full_opt.patch"; do
              wget https://github.com/reigadegr/rustfs_compile/raw/main/patchs/$i
              patch -p1 -F 3 < $i && git add  . && git commit -m "auto commit" || git reset --hard

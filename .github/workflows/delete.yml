@@ -7,10 +7,10 @@ on:
         type: choice
         description: '清理的工作流名称'
         required: true
-        default: 'Build and Release (nightly)'
+        default: 'Release Build aarch64'
         options:
-          - Build and Release (nightly)
-          - Build and Release
+          - Release Build aarch64
+          - Release Build x86_64
 
       count:
         description: '最多访问的运行次数'

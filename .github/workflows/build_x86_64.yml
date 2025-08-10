@@ -22,7 +22,7 @@
 # 3. Trigger docker.yml to build and push images using the uploaded binaries
 #
 
-name: Build and Release (nightly)
+name: Release Build x86_64
 
 on:
   workflow_dispatch:
@@ -122,7 +122,7 @@ jobs:
         include:
           # Linux builds
           - os: ubuntu-latest
-            target: aarch64-unknown-linux-musl
+            target: x86_64-unknown-linux-musl
             cross: true
             platform: linux
     steps:
@@ -234,7 +234,7 @@ jobs:
         include:
           # Linux builds
           - os: ubuntu-latest
-            target: arm64
+            target: amd64
             cross: true
             platform: linux
     steps:

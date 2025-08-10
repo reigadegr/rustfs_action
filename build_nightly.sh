@@ -28,4 +28,4 @@ export CARGO_TERM_COLOR=always
 
 cargo +nightly zigbuild -r --target "$1" -p rustfs --bins -Z build-std -Z trim-paths
 
-dd if="$(dirname "$0")"/target/aarch64-unknown-linux-musl/release/rustfs of="$(dirname "$0")"/module/rustfs
+dd if="$(dirname "$0")"/target/*-unknown-linux-musl/release/rustfs of="$(dirname "$0")"/module/rustfs

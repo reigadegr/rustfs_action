@@ -1,0 +1,362 @@
+# Copyright 2024 RustFS Team
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Build and Release Workflow
+#
+# This workflow builds RustFS binaries and automatically triggers Docker image builds.
+#
+# Flow:
+# 1. Build binaries for multiple platforms
+# 2. Upload binaries to OSS storage
+# 3. Trigger docker.yml to build and push images using the uploaded binaries
+#
+
+name: Release Build aarch64-unknown-linux-musl scanner
+
+on:
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+  # Optimize build performance
+  CARGO_INCREMENTAL: 0
+
+jobs:
+  # Build strategy check - determine build type based on trigger
+  build-check:
+    name: Build Strategy Check
+    runs-on: ubuntu-latest
+    outputs:
+      should_build: ${{ steps.check.outputs.should_build }}
+      build_type: ${{ steps.check.outputs.build_type }}
+      version: ${{ steps.check.outputs.version }}
+      short_sha: ${{ steps.check.outputs.short_sha }}
+      is_prerelease: ${{ steps.check.outputs.is_prerelease }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine build strategy
+        id: check
+        run: |
+          should_build=false
+          build_type="none"
+          version=""
+          short_sha=""
+          is_prerelease=false
+
+          # Get short SHA for all builds
+          short_sha=$(git rev-parse --short HEAD)
+
+          # Determine build type based on trigger
+          if [[ "${{ startsWith(github.ref, 'refs/tags/') }}" == "true" ]]; then
+            # Tag push - release or prerelease
+            should_build=true
+            tag_name="${GITHUB_REF#refs/tags/}"
+            version="${tag_name}"
+
+            # Check if this is a prerelease
+            if [[ "$tag_name" == *"alpha"* ]] || [[ "$tag_name" == *"beta"* ]] || [[ "$tag_name" == *"rc"* ]]; then
+              build_type="prerelease"
+              is_prerelease=true
+              echo "🚀 Prerelease build detected: $tag_name"
+            else
+              build_type="release"
+              echo "📦 Release build detected: $tag_name"
+            fi
+          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            # Main branch push - development build
+            should_build=true
+            build_type="development"
+            version="dev-${short_sha}"
+            echo "🛠️  Development build detected"
+          elif [[ "${{ github.event_name }}" == "schedule" ]] || \
+               [[ "${{ github.event_name }}" == "workflow_dispatch" ]] || \
+               [[ "${{ contains(github.event.head_commit.message, '--build') }}" == "true" ]]; then
+            # Scheduled or manual build
+            should_build=true
+            build_type="development"
+            version="dev-${short_sha}"
+            echo "⚡ Manual/scheduled build detected"
+          fi
+
+          echo "should_build=$should_build" >> $GITHUB_OUTPUT
+          echo "build_type=$build_type" >> $GITHUB_OUTPUT
+          echo "version=$version" >> $GITHUB_OUTPUT
+          echo "short_sha=$short_sha" >> $GITHUB_OUTPUT
+          echo "is_prerelease=$is_prerelease" >> $GITHUB_OUTPUT
+
+          echo "📊 Build Summary:"
+          echo "  - Should build: $should_build"
+          echo "  - Build type: $build_type"
+          echo "  - Version: $version"
+          echo "  - Short SHA: $short_sha"
+          echo "  - Is prerelease: $is_prerelease"
+
+  # Build RustFS binaries
+  build-rustfs:
+    name: Build RustFS
+    needs: [build-check]
+    if: needs.build-check.outputs.should_build == 'true'
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    env:
+      RUSTFLAGS: ${{ matrix.cross == 'false' && '-C target-cpu=native' || '' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Linux builds
+          - os: ubuntu-latest
+            target: aarch64-unknown-linux-musl
+            cross: true
+            platform: linux
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Rust environment
+        uses: ./.github/actions/setup
+        with:
+          rust-version: stable
+          target: ${{ matrix.target }}
+          cache-shared-key: build-${{ matrix.target }}-${{ hashFiles('**/Cargo.lock') }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          cache-save-if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/') }}
+          install-cross-tools: ${{ matrix.cross }}
+
+      - name: Clone rustfs sources
+        run: |
+          git clone --depth 1 https://github.com/rustfs/rustfs rustfs_tmpdir
+          mv rustfs_tmpdir/*  .
+          rm -rf rustfs_tmpdir
+          
+      - name: Configure Git
+        run: |
+          git config --global user.name "Numbersf"
+          git config --global user.email "263623064@qq.com"
+
+      - name: Build static console assets
+        shell: bash
+        run: |
+          git clone --depth 1 https://github.com/rustfs/console rustfs_consule
+          cd rustfs_consule
+          npm install -g pnpm
+          pnpm add -D @types/lodash
+          pnpm add lodash-es
+          pnpm add -D @types/lodash-es
+          pnpm install --no-frozen-lockfile
+          pnpm install
+          git add  . && git commit -m "auto commit" || true
+          for i in "fix_seemly.patch" \
+            "fix_loaddash.patch" \
+            "default_admin.patch"; do
+             wget https://github.com/reigadegr/rustfs_compile/raw/main/patchs/$i
+             patch -p1 -F 3 < $i && git add  . && git commit -m "auto commit" || git reset --hard
+             git clean -df
+          done
+          NITRO_PRESET=static pnpm build
+          cd  ..
+          mkdir -p ./rustfs/static
+          cp -rf rustfs_consule/dist/* ./rustfs/static
+
+      - name: Setup rust toolchains
+        run: |
+          rustup default nightly
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain nightly --profile default -y
+          rustup target add aarch64-linux-android armv7-linux-androideabi x86_64-linux-android i686-linux-android
+          rustup component add rust-src llvm-tools-preview
+          rustup component add rust-src --toolchain nightly-x86_64-unknown-linux-gnu
+          rustup component add rust-src --toolchain nightly-x86_64-unknown-linux-musl
+          rustup target add aarch64-unknown-linux-musl --toolchain nightly
+          rustup update
+          
+      - name: Setup TimeZone
+        run: |
+          sudo -E rm -rf /etc/localtime
+          sudo -E ln -s /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+  
+      - name: Fix upstream bugs
+        run: |
+          rm -rf target && echo "删除了target" || echo "无需删除"
+          git add  . && git commit -m "auto commit"
+          for i in "use_mimalloc.patch" \           
+            "disable_terminal_color.patch" \
+            "full_opt.patch"; do
+             wget https://github.com/reigadegr/rustfs_compile/raw/main/patchs/$i
+             patch -p1 -F 3 < $i && git add  . && git commit -m "auto commit" || git reset --hard
+             git clean -df
+          done
+          # git add  . && git commit -m "auto commit" || true
+          
+      - name: Build RustFS
+        shell: bash
+        run: |
+          # Force rebuild by touching build.rs
+          touch rustfs/build.rs
+          sh build_nightly.sh "${{ matrix.target }}"
+
+      - name: Upload to GitHub artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: aarch64_rustfs
+          path: aarch64-unknown-linux-musl_module/rustfs
+          retention-days: 1
+
+  # Build minio client binaries
+  build-mc:
+    name: Build MC
+    needs: [build-check]
+    if: needs.build-check.outputs.should_build == 'true'
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    env:
+      RUSTFLAGS: ${{ matrix.cross == 'false' && '-C target-cpu=native' || '' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Linux builds
+          - os: ubuntu-latest
+            target: arm64
+            cross: true
+            platform: linux
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.x'
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install git clang llvm
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "Numbersf"
+          git config --global user.email "263623064@qq.com"
+          
+      - name: Setup TimeZone
+        run: |
+          sudo -E rm -rf /etc/localtime
+          sudo -E ln -s /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+
+      - name: Clone minio client sources
+        run: |
+          git clone --depth 1 https://github.com/minio/mc mc_tmpdir
+          mv mc_tmpdir/*  .
+          rm -rf mc_tmpdir
+
+      - name: Build Minio Client
+        shell: bash
+        run: |
+          export GOOS="${{ matrix.platform }}" CGO_ENABLED=0
+          export GOARCH="${{ matrix.target }}"
+          go build -trimpath -ldflags "-s -w" -gcflags="all=-B -dwarf=false"
+
+      - name: Upload to GitHub artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: aarch64_mc
+          path: mc
+          retention-days: 1
+
+  integration-magisk:
+    name: Integration Magisk
+    needs: [build-rustfs, build-mc]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Download mc
+        uses: actions/download-artifact@v4
+        with:
+          name: aarch64_mc
+
+      - name: Download rustfs
+        uses: actions/download-artifact@v4
+        with:
+          name: aarch64_rustfs
+
+      - name: Production magisk module
+        run: |
+          ls -al
+          file *
+          mv mc aarch64-unknown-linux-musl_module
+          mv rustfs aarch64-unknown-linux-musl_module
+       
+      - name: Upload release version
+        uses: actions/upload-artifact@v4
+        with:
+          name: magisk_rustfs
+          compression-level: 9
+          path: aarch64-unknown-linux-musl_module/*
+
+  # Build summary
+  build-summary:
+    name: Build Summary
+    needs: [build-check, build-rustfs, build-mc]
+    if: always() && needs.build-check.outputs.should_build == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build completion summary
+        shell: bash
+        run: |
+          BUILD_TYPE="${{ needs.build-check.outputs.build_type }}"
+          VERSION="${{ needs.build-check.outputs.version }}"
+
+          echo "🎉 Build completed successfully!"
+          echo "📦 Build type: $BUILD_TYPE"
+          echo "🔢 Version: $VERSION"
+          echo ""
+
+          # Check build status
+          BUILD_STATUS="${{ needs.build-rustfs.result }}"
+
+          echo "📊 Build Results:"
+          echo "  📦 All platforms: $BUILD_STATUS"
+          echo ""
+
+          case "$BUILD_TYPE" in
+            "development")
+              echo "🛠️  Development build artifacts have been uploaded to OSS dev directory"
+              echo "⚠️  This is a development build - not suitable for production use"
+              ;;
+            "release")
+              echo "🚀 Release build artifacts have been uploaded to OSS release directory"
+              echo "✅ This build is ready for production use"
+              echo "🏷️  GitHub Release will be created in this workflow"
+              ;;
+            "prerelease")
+              echo "🧪 Prerelease build artifacts have been uploaded to OSS release directory"
+              echo "⚠️  This is a prerelease build - use with caution"
+              echo "🏷️  GitHub Release will be created in this workflow"
+              ;;
+          esac
+
+          echo ""

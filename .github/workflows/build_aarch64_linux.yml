@@ -22,7 +22,7 @@
 # 3. Trigger docker.yml to build and push images using the uploaded binaries
 #
 
-name: Release Build aarch64
+name: Release Build aarch64-unknown-linux-musl
 
 on:
   workflow_dispatch:

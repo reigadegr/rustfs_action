@@ -7,7 +7,7 @@ index b13ed45..8bc7df4 100644
  uuid = { workspace = true }
  zip = { workspace = true }
 +mimalloc = { version = "0.1.47", features = [
-+    "local_dynamic_tls",
++    "no_thp",
 +    "override",
 +] }
  

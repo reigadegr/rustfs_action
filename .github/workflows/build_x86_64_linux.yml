@@ -315,7 +315,7 @@ jobs:
         with:
           name: magisk_rustfs
           compression-level: 9
-          path: module/*
+          path: x86_64-unknown-linux-musl_module/*
 
   # Build summary
   build-summary:

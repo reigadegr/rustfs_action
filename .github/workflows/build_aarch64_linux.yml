@@ -216,7 +216,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: aarch64_rustfs
-          path: module/rustfs
+          path: aarch64-unknown-linux-musl_module/rustfs
           retention-days: 1
 
   # Build minio client binaries

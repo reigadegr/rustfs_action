@@ -272,7 +272,7 @@ jobs:
       - name: Build Minio Client
         shell: bash
         run: |
-          export GOOS=linux CGO_ENABLED=0
+          export GOOS="${{ matrix.platform }}" CGO_ENABLED=0
           export GOARCH="${{ matrix.target }}"
           go build -trimpath -ldflags "-s -w" -gcflags="all=-B -dwarf=false"
 

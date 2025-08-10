@@ -184,7 +184,7 @@ jobs:
           rustup component add rust-src llvm-tools-preview
           rustup component add rust-src --toolchain nightly-x86_64-unknown-linux-gnu
           rustup component add rust-src --toolchain nightly-x86_64-unknown-linux-musl
-          rustup target add aarch64-unknown-linux-musl --toolchain nightly
+          rustup target add x86_64-unknown-linux-musl --toolchain nightly
           rustup update
           
       - name: Setup TimeZone

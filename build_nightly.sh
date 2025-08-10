@@ -11,6 +11,10 @@ export RUSTFLAGS="
     -C llvm-args=-regalloc-enable-advisor=release \
     -C llvm-args=-hot-cold-split=true \
     -C llvm-args=-enable-misched \
+    -C llvm-args=-enable-post-misched \
+    -C llvm-args=-enable-loop-versioning-licm \
+    -C llvm-args=-enable-loop-flatten \
+    -C llvm-args=-enable-dfa-jump-thread \
     -C llvm-args=-enable-scalable-autovec-in-streaming-mode \
     -C llvm-args=-inliner-interactive-include-default \
     -C llvm-args=-ml-inliner-model-selector=arm64-mixed \
@@ -21,7 +25,7 @@ export RUSTFLAGS="
     -C llvm-args=-enable-loop-versioning-licm \
     -C link-args=-fomit-frame-pointer \
     -C link-args=-Wl,-O3,--gc-sections,--as-needed \
-    -C link-args=-Wl,-z,norelro,-x,-s,--strip-all,-z,--relax
+    -C link-args=-Wl,-z,norelro,-x,-s,--strip-all
 " 
 
 rm -rf Cargo.lock

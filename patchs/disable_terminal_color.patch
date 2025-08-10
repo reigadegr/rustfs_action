@@ -1,0 +1,13 @@
+diff --git a/crates/obs/src/telemetry.rs b/crates/obs/src/telemetry.rs
+index 3b81a9e..fbccbb3 100644
+--- a/crates/obs/src/telemetry.rs
++++ b/crates/obs/src/telemetry.rs
+@@ -376,7 +376,7 @@ pub(crate) fn init_telemetry(config: &OtelConfig) -> OtelGuard {
+             .rotate(rotation_criterion, Naming::TimestampsDirect, Cleanup::KeepLogFiles(keep_files.into()))
+             .format_for_files(format_for_file) // Add a custom formatting function for file output
+             .duplicate_to_stdout(level_filter) // Use dynamic levels
+-            .format_for_stdout(format_with_color) // Add a custom formatting function for terminal output
++            .format_for_stdout(format_for_file) // Add a custom formatting function for terminal output
+             .write_mode(WriteMode::BufferAndFlush)
+             .append() // Avoid clearing existing logs at startup
+             .print_message() // Startup information output to console

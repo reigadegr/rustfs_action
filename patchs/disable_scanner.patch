@@ -8,7 +8,7 @@ index 8275d84..22a5092 100644
  
 -    let scanner = Scanner::new(Some(ScannerConfig::default()), Some(heal_manager));
 -    scanner.start().await?;
-+    // let scanner = Scanner::new(Some(ScannerConfig::default()), Some(heal_manager));
++    let scanner = Scanner::new(Some(ScannerConfig::default()), Some(heal_manager));
 +    // scanner.start().await?;
      print_server_info();
      init_bucket_replication_pool().await;

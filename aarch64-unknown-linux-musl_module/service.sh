@@ -15,6 +15,9 @@ export RUSTFS_VOLUMES="/storage/emulated/0/Android/rustfs"
 export RUSTFS_ADDRESS=":9000"
 export RUST_LOG="warn"
 
+export RUSTFS_ACCESS_KEY=rustfsadmin_name
+export RUSTFS_SECRET_KEY=rustfsadmin_pswd
+
 killall -15 rustfs; rm $LOG
 chmod +x ${0%/*}/rustfs
 RUST_BACKTRACE=1 nohup $MODDIR/rustfs >$LOG 2>&1 &
@@ -34,7 +37,7 @@ killall -15 mc
 chmod +x $MODDIR/mc
 sleep 1
 # 起别名
-$MODDIR/mc alias set myminio "http://localhost$RUSTFS_ADDRESS" rustfsadmin rustfsadmin
+$MODDIR/mc alias set myminio "http://localhost$RUSTFS_ADDRESS" $RUSTFS_ACCESS_KEY $RUSTFS_SECRET_KEY
 
 # 创建桶
 $MODDIR/mc mb myminio/mybucket

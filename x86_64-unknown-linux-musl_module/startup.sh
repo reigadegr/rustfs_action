@@ -1,14 +1,17 @@
 #!/bin/sh
 MODDIR=${0%/*}
-LOG=./log.txt
+LOG=$MODDIR/log.txt
 
-export RUSTFS_VOLUMES="./rustfs_workspace"  
+export RUSTFS_VOLUMES="$MODDIR/nas"  
 export RUSTFS_ADDRESS=":9000"
 export RUST_LOG="warn"
 
+export RUSTFS_ACCESS_KEY=rustfsadmin_name
+export RUSTFS_SECRET_KEY=rustfsadmin_pswd
+
 killall -15 rustfs; rm $LOG
 chmod +x ${0%/*}/rustfs
-RUST_BACKTRACE=1 nohup ./rustfs >$LOG 2>&1 &
+RUST_BACKTRACE=1 nohup $MODDIR/rustfs >$LOG 2>&1 &
 
 ip="$(ifconfig | awk '/inet / && !/127.0.0.1/ && /255.255.255.0/ {print $2}')"
 
@@ -18,17 +21,17 @@ fi
 
 echo "访问$ip$RUSTFS_ADDRESS"
 
-export MC_CONFIG_DIR="./rustfs_workspace/.mc"  
+export MC_CONFIG_DIR="$MODDIR/nas/.mc"  
 mkdir -p "$MC_CONFIG_DIR"
 
 killall -15 mc
-chmod +x ./mc
+chmod +x $MODDIR/mc
 sleep 1
 # 起别名
-./mc alias set myminio "http://localhost$RUSTFS_ADDRESS" rustfsadmin rustfsadmin
+$MODDIR/mc alias set myminio "http://localhost$RUSTFS_ADDRESS" $RUSTFS_ACCESS_KEY $RUSTFS_SECRET_KEY
 
 # 创建桶
-./mc mb myminio/mybucket
+$MODDIR/mc mb myminio/mybucket
 
 # 设置桶为公开访问：
-./mc anonymous set public myminio/mybucket
+$MODDIR/mc anonymous set public myminio/mybucket

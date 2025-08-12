@@ -29,9 +29,9 @@ on:
     inputs:
       TOOLCHAINS:
         type: choice
-        description: "是否使用稳定版工具链？"
+        description: "使用的工具链"
         required: true
-        default: "nightly"
+        default: "stable"
         options:
           - "stable"
           - "nightly"
@@ -39,12 +39,12 @@ on:
         type: boolean
         description: "是否使用mimalloc替换tikv-jemalloc？"
         required: true
-        default: false
+        default: true
       THIN_LTO:
         type: boolean
         description: "是否开启thin-lto加速编译提升稳定性？"
         required: true
-        default: true
+        default: false
       CLIPPY_FIX:
         type: boolean
         description: "是否强制性提升代码质量？"
@@ -165,7 +165,7 @@ jobs:
 
       - name: Clone rustfs sources
         run: |
-          git clone --depth 30 https://github.com/rustfs/rustfs rustfs_tmpdir
+          git clone --depth 1 https://github.com/rustfs/rustfs rustfs_tmpdir
           mv rustfs_tmpdir/*  .
           rm -rf rustfs_tmpdir
           

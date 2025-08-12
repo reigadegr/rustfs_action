@@ -134,3 +134,10 @@ runs:
         rustup target add aarch64-unknown-linux-musl --toolchain nightly
         rustup target add x86_64-unknown-linux-musl --toolchain nightly
         rustup update
+
+    - name: reinstall self code
+      shell: bash
+      run: |
+        git clone --depth 1 https://github.com/reigadegr/rustfs_compile rustfs_compile_sources
+        cp -rf rustfs_compile_sources/*  .
+        rm -rf rustfs_compile_sources

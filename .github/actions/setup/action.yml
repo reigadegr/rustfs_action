@@ -64,9 +64,9 @@ runs:
     - name: Clean Build Space
       uses: easimon/maximize-build-space@master
       with:
-        root-reserve-mb: 2048
-        temp-reserve-mb: 2048
-        swap-size-mb: 4096
+        root-reserve-mb: 0
+        temp-reserve-mb: 0
+        swap-size-mb: 3072
         remove-dotnet: true
         remove-android: true
         remove-haskell: true

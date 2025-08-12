@@ -130,6 +130,7 @@ runs:
         save-if: ${{ inputs.cache-save-if }}
 
     - name: Setup rust nightly musl toolchains
+      shell: bash
       run: |
         curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain nightly --profile default -y
         rustup default nightly

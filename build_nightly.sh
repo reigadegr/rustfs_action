@@ -28,7 +28,6 @@ export RUSTFLAGS="
     -C llvm-args=-enable-shrink-wrap=1 \
     -C llvm-args=-mergefunc-use-aliases \
     -C llvm-args=-enable-dfa-jump-thread \
-    -C llvm-args=-enable-ml-inliner=release \
     -C llvm-args=-enable-loop-versioning-licm \
     -C llvm-args=-regalloc-enable-advisor=release \
     -C llvm-args=-inliner-interactive-include-default \
@@ -40,7 +39,7 @@ export RUSTFLAGS="
     -C link-args=-Wl,-z,norelro,-x,-s,--strip-all
 " 
 
-# rm -rf Cargo.lock
+rm -rf Cargo.lock
 
 export CARGO_TERM_COLOR=always
 

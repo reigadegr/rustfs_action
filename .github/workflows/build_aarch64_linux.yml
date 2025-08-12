@@ -232,6 +232,7 @@ jobs:
           git add  . && git commit -m "auto commit" || echo "无需提交"
           work_space="$(pwd)"
           for i in $(ls $(realpath ./crates)); do
+            git add  . && git commit -m "auto commit" || echo "无需提交"
             i="$(realpath "$work_space/crates/$i")"
             cd $i
             sed -i '1i #![warn(clippy::nursery, clippy::pedantic, clippy::style, clippy::complexity, clippy::perf, clippy::correctness)]' src/lib.rs || sed -i '1i #![warn(clippy::nursery, clippy::pedantic, clippy::style, clippy::complexity, clippy::perf, clippy::correctness)]' src/main.rs
@@ -239,7 +240,7 @@ jobs:
                 sed -i '1i #![warn(clippy::nursery, clippy::pedantic, clippy::style, clippy::complexity, clippy::perf, clippy::correctness)]' src/main.rs
             fi
             git add  . && git commit -m "auto commit" || echo "无需提交"
-            cargo clippy --fix --allow-dirty --allow-staged -- -W clippy::all -W clippy::pedantic -W clippy::cargo -A clippy::restriction >/dev/null 2>&1
+            cargo clippy --fix --allow-dirty --allow-staged -- -W clippy::all -W clippy::pedantic -W clippy::cargo -A clippy::restriction >/dev/null 2>&1 || continue
             git add  . && git commit -m "auto commit" || echo "无需提交"
           done
                   

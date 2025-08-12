@@ -37,6 +37,11 @@ on:
         description: "是否开启thin-lto加速编译提升稳定性？"
         required: true
         default: true
+      CLIPPY_FIX:
+        type: boolean
+        description: "是否强制性提升代码质量？"
+        required: true
+        default: true
 
 env:
   CARGO_TERM_COLOR: always
@@ -229,6 +234,7 @@ jobs:
           fi
 
       - name: Clippy force fix
+        if: ${{ github.event.inputs.CLIPPY_FIX == 'true' }}
         run: |
           git init || echo "无需init"
           echo target >.gitignore

@@ -20,14 +20,6 @@ inputs:
     description: "Rust version to install"
     required: false
     default: "stable"
-  cache-shared-key:
-    description: "Shared cache key for Rust dependencies"
-    required: false
-    default: "rustfs-deps"
-  cache-save-if:
-    description: "Condition for saving cache"
-    required: false
-    default: "true"
   install-cross-tools:
     description: "Install cross-compilation tools"
     required: false

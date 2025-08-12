@@ -27,6 +27,14 @@ name: Release Build aarch64-unknown-linux-musl
 on:
   workflow_dispatch:
     inputs:
+      TOOLCHAINS:
+        type: choice
+        description: "是否使用稳定版工具链？"
+        required: true
+        default: "nightly"
+        options:
+          - "stable"
+          - "nightly"
       USE_MIMALLOC:
         type: boolean
         description: "是否使用mimalloc替换tikv-jemalloc？"
@@ -42,14 +50,7 @@ on:
         description: "是否强制性提升代码质量？"
         required: true
         default: false
-      TOOLCHAINS:
-        type: choice
-        description: "是否使用稳定版工具链？"
-        required: true
-        default: "nightly"
-        options:
-          - "stable"
-          - "nightly"
+
 env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: 1

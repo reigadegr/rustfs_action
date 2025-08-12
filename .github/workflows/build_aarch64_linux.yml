@@ -180,21 +180,6 @@ jobs:
           cd  ..
           mkdir -p ./rustfs/static
           cp -rf rustfs_consule/dist/* ./rustfs/static
-
-      - name: Setup rust toolchains
-        run: |
-          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain nightly --profile default -y
-          rustup default nightly
-          rustup component add rust-src llvm-tools-preview
-          rustup component add rust-src --toolchain nightly-x86_64-unknown-linux-gnu
-          rustup component add rust-src --toolchain nightly-x86_64-unknown-linux-musl
-          
-          rustup component add rust-src --toolchain nightly-aarch64-unknown-linux-gnu
-          rustup component add rust-src --toolchain nightly-aarch64-unknown-linux-musl
-          
-          rustup target add aarch64-unknown-linux-musl --toolchain nightly
-          rustup target add x86_64-unknown-linux-musl --toolchain nightly
-          rustup update
           
       - name: Setup TimeZone
         run: |

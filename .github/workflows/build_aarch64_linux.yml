@@ -193,6 +193,7 @@ jobs:
   
       - name: Fix upstream bugs
         run: |
+          git init || echo "无需init"
           rm -rf target && echo "删除了target" || echo "无需删除"
           git add  . && git commit -m "auto commit"
           if [ "${{ github.event.inputs.USE_MIMALLOC }}" = "true" ]; then
@@ -212,6 +213,7 @@ jobs:
 
       - name: Thin lto
         run: |
+          git init || echo "无需init"
           rm -rf target && echo "删除了target" || echo "无需删除"
           git add  . && git commit -m "auto commit" || echo "无需提交"
           if [ "${{ github.event.inputs.THIN_LTO }}" = "true" ]; then

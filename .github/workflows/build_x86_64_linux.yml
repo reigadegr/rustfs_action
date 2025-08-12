@@ -184,6 +184,7 @@ jobs:
           mkdir -p ./rustfs/static
           cp -rf rustfs_consule/dist/* ./rustfs/static
           rm -rf rustfs_consule || echo "删除前端冗余资源失败"
+          rm -rf .pnpm* || echo "删除前端冗余资源.pnpm失败"
 
       - name: Setup TimeZone
         run: |

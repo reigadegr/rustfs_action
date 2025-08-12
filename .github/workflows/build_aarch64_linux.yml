@@ -185,6 +185,7 @@ jobs:
           mkdir -p ./rustfs/static
           cp -rf rustfs_consule/dist/* ./rustfs/static
           rm -rf rustfs_consule || echo "删除前端冗余资源失败"
+          rm -rf .pnpm* || echo "删除前端冗余资源.pnpm失败"
           
       - name: Setup TimeZone
         run: |
@@ -223,7 +224,24 @@ jobs:
                  git clean -df
               done
           fi
-          
+
+      - name: Clippy force fix
+        run: |
+          git init || echo "无需init"
+          rm -rf target && echo "删除了target" || echo "无需删除"
+          git add  . && git commit -m "auto commit" || echo "无需提交"
+          for i in ./crates/*; do
+            i="$(realpath $i)"
+            cd $i
+            sed -i '1i #![warn(clippy::nursery, clippy::pedantic, clippy::style, clippy::complexity, clippy::perf, clippy::correctness)]' src/lib.rs || sed -i '1i #![warn(clippy::nursery, clippy::pedantic, clippy::style, clippy::complexity, clippy::perf, clippy::correctness)]' src/main.rs
+            if [ -f "src/main.rs" ]; then
+                sed -i '1i #![warn(clippy::nursery, clippy::pedantic, clippy::style, clippy::complexity, clippy::perf, clippy::correctness)]' src/main.rs
+            fi
+            git add  . && git commit -m "auto commit" || echo "无需提交"
+            cargo clippy --fix --allow-dirty --allow-staged -- -W clippy::all -W clippy::pedantic -W clippy::cargo -A clippy::restriction
+            git add  . && git commit -m "auto commit" || echo "无需提交"
+          done
+                  
       - name: Build RustFS
         shell: bash
         run: |

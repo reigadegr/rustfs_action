@@ -82,11 +82,11 @@ runs:
          echo "1000" | sudo -E tee /sys/kernel/mm/lru_gen/min_ttl_ms
          echo "1" | sudo -E tee /sys/kernel/mm/swap/vma_ra_enabled
 
-    - name: Install protoc
-      uses: arduino/setup-protoc@v3
-      with:
-        version: "31.x"
-        repo-token: ${{ inputs.github-token }}
+    # - name: Install protoc
+      # uses: arduino/setup-protoc@v3
+      # with:
+        # version: "31.x"
+        # repo-token: ${{ inputs.github-token }}
 
     - name: Install flatc
       uses: Nugine/setup-flatc@v1

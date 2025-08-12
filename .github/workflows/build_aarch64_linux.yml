@@ -42,7 +42,14 @@ on:
         description: "是否强制性提升代码质量？"
         required: true
         default: false
-
+      TOOLCHAINS:
+        type: choice
+        description: "是否使用稳定版工具链？"
+        required: true
+        default: "nightly"
+        options:
+          - "stable"
+          - "nightly"
 env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: 1
@@ -150,8 +157,8 @@ jobs:
       - name: Setup Rust environment
         uses: ./.github/actions/setup
         with:
-          rust-version: stable
-          target: ${{ matrix.target }}          
+          rust-version: ${{ github.event.inputs.TOOLCHAINS }}
+          target: ${{ matrix.target }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           install-cross-tools: ${{ matrix.cross }}
 
@@ -256,7 +263,11 @@ jobs:
         run: |
           # Force rebuild by touching build.rs
           touch rustfs/build.rs
-          sh build_nightly.sh "${{ matrix.target }}"
+          if [ "${{ github.event.inputs.TOOLCHAINS }}" = "nightly" ]; then
+            sh build_nightly.sh "${{ matrix.target }}"
+          else
+            sh build_stable.sh "${{ matrix.target }}"
+          fi
 
       - name: Upload to GitHub artifacts
         uses: actions/upload-artifact@v4

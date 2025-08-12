@@ -121,6 +121,7 @@ runs:
 
     - name: Setup rust nightly musl toolchains
       shell: bash
+      if: ${{ inputs.rust-version == 'nightly' }}
       run: |
         curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain nightly --profile default -y
         rustup default nightly

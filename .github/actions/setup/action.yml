@@ -36,15 +36,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Clean Build Space
-      uses: easimon/maximize-build-space@master
-      with:
-        remove-dotnet: true
-        remove-android: true
-        remove-haskell: true
-        remove-codeql: true
-        remove-docker-images: true
-
     - name: Install system dependencies (Ubuntu)
       if: runner.os == 'Linux'
       shell: bash

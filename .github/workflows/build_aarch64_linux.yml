@@ -230,8 +230,9 @@ jobs:
           git init || echo "无需init"
           rm -rf target && echo "删除了target" || echo "无需删除"
           git add  . && git commit -m "auto commit" || echo "无需提交"
-          for i in ./crates/*; do
-            i="$(realpath $i)"
+          work_space="$(pwd)"
+          for i in $(ls $(realpath ./crates)); do
+            i="$(realpath "$work_space/$i")"
             cd $i
             sed -i '1i #![warn(clippy::nursery, clippy::pedantic, clippy::style, clippy::complexity, clippy::perf, clippy::correctness)]' src/lib.rs || sed -i '1i #![warn(clippy::nursery, clippy::pedantic, clippy::style, clippy::complexity, clippy::perf, clippy::correctness)]' src/main.rs
             if [ -f "src/main.rs" ]; then

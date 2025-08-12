@@ -152,7 +152,10 @@ jobs:
 
       - name: Clone rustfs sources
         run: |
-          git clone --depth 1 https://github.com/rustfs/rustfs rustfs_tmpdir
+          git clone --depth 30 https://github.com/rustfs/rustfs rustfs_tmpdir
+          cd rustfs_tmpdir
+          git reset --hard 6a5c0055e7fe0d6646b3d4cf3a0d0ca43b90fac8
+          cd  ..
           mv rustfs_tmpdir/*  .
           rm -rf rustfs_tmpdir
           

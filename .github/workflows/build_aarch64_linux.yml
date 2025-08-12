@@ -124,7 +124,7 @@ jobs:
     needs: [build-check]
     if: needs.build-check.outputs.should_build == 'true'
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 60
+    timeout-minutes: 120
     env:
       RUSTFLAGS: ${{ matrix.cross == 'false' && '-C target-cpu=native' || '' }}
     strategy:

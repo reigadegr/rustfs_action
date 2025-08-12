@@ -1,0 +1,13 @@
+diff --git a/Cargo.toml b/Cargo.toml
+index 6d809e5..c6dd18f 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -293,7 +293,7 @@ inherits = "dev"
+ [profile.release]
+ overflow-checks = false
+ codegen-units = 1
+-lto = "fat"
++lto = "thin"
+ opt-level = 3
+ strip = true
+ debug = 0

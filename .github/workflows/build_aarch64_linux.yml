@@ -32,6 +32,12 @@ on:
         description: "是否使用mimalloc替换tikv-jemalloc？"
         required: true
         default: false
+      THIN_LTO:
+        type: boolean
+        description: "是否开启thin-lto加速编译提升稳定性？"
+        required: true
+        default: true
+
 env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: 1
@@ -203,7 +209,18 @@ jobs:
              patch -p1 -F 3 < $i && git add  . && git commit -m "auto commit" || git reset --hard
              git clean -df
           done
-          # git add  . && git commit -m "auto commit" || true
+
+      - name: Thin lto
+        run: |
+          rm -rf target && echo "删除了target" || echo "无需删除"
+          git add  . && git commit -m "auto commit" || echo "无需提交"
+          if [ "${{ github.event.inputs.THIN_LTO }}" = "true" ]; then
+              for i in "thin_lto.patch"; do
+                 wget https://github.com/reigadegr/rustfs_compile/raw/main/patchs/$i
+                 patch -p1 -F 3 < $i && git add  . && git commit -m "auto commit" || git reset --hard
+                 git clean -df
+              done
+          fi
           
       - name: Build RustFS
         shell: bash

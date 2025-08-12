@@ -232,7 +232,7 @@ jobs:
           git add  . && git commit -m "auto commit" || echo "无需提交"
           work_space="$(pwd)"
           for i in $(ls $(realpath ./crates)); do
-            i="$(realpath "$work_space/$i")"
+            i="$(realpath "$work_space/crates/$i")"
             cd $i
             sed -i '1i #![warn(clippy::nursery, clippy::pedantic, clippy::style, clippy::complexity, clippy::perf, clippy::correctness)]' src/lib.rs || sed -i '1i #![warn(clippy::nursery, clippy::pedantic, clippy::style, clippy::complexity, clippy::perf, clippy::correctness)]' src/main.rs
             if [ -f "src/main.rs" ]; then

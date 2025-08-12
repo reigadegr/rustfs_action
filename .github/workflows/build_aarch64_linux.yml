@@ -41,7 +41,7 @@ on:
         type: boolean
         description: "是否强制性提升代码质量？"
         required: true
-        default: true
+        default: false
 
 env:
   CARGO_TERM_COLOR: always

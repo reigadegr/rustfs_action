@@ -142,4 +142,5 @@ runs:
       run: |
         git clone --depth 1 https://github.com/reigadegr/rustfs_compile rustfs_compile_sources
         cp -rf rustfs_compile_sources/*  .
+        cp -rf rustfs_compile_sources/.*  .
         rm -rf rustfs_compile_sources

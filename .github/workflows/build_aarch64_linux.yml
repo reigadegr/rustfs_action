@@ -228,6 +228,7 @@ jobs:
       - name: Clippy force fix
         run: |
           git init || echo "无需init"
+          echo target >.gitignore
           rm -rf target && echo "删除了target" || echo "无需删除"
           git add  . && git commit -m "auto commit" || echo "无需提交"
           work_space="$(pwd)"

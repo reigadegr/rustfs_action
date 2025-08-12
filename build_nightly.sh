@@ -40,7 +40,7 @@ export RUSTFLAGS="
     -C link-args=-Wl,-z,norelro,-x,-s,--strip-all
 " 
 
-rm -rf Cargo.lock
+# rm -rf Cargo.lock
 
 export CARGO_TERM_COLOR=always
 

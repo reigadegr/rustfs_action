@@ -239,7 +239,7 @@ jobs:
                 sed -i '1i #![warn(clippy::nursery, clippy::pedantic, clippy::style, clippy::complexity, clippy::perf, clippy::correctness)]' src/main.rs
             fi
             git add  . && git commit -m "auto commit" || echo "无需提交"
-            cargo clippy --fix --allow-dirty --allow-staged -- -W clippy::all -W clippy::pedantic -W clippy::cargo -A clippy::restriction
+            cargo clippy --fix --allow-dirty --allow-staged -- -W clippy::all -W clippy::pedantic -W clippy::cargo -A clippy::restriction >/dev/null 2>&1
             git add  . && git commit -m "auto commit" || echo "无需提交"
           done
                   

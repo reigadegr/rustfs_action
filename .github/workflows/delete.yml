@@ -173,7 +173,7 @@ jobs:
               if (!caches || caches.length === 0) break;
 
               for (const cache of caches) {
-                if (cache.key.startsWith('ccache-')) {
+                if (cache.key.startsWith('setup-')) {
                   console.log(`删除缓存: ${cache.key}`);
                   await github.rest.actions.deleteActionsCacheById({
                     owner,

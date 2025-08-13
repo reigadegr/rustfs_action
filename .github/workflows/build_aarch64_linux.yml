@@ -257,6 +257,8 @@ jobs:
             cargo clippy --fix --allow-dirty --allow-staged -- -W clippy::all -W clippy::pedantic -W clippy::cargo -W clippy::nursery -W clippy::style -W clippy::complexity -W clippy::perf -W clippy::correctness  -A clippy::restriction >/dev/null 2>&1 || continue
             git add  . && git commit -m "auto commit" || echo "无需提交"
           done
+          cd "$work_space"/rustfs
+          cargo clippy --fix --allow-dirty --allow-staged -- -W clippy::all -W clippy::pedantic -W clippy::cargo -W clippy::nursery -W clippy::style -W clippy::complexity -W clippy::perf -W clippy::correctness  -A clippy::restriction >/dev/null 2>&1 || echo "修rustfs主模块出错"
 
       - name: Build RustFS
         shell: bash

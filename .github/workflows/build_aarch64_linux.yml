@@ -226,17 +226,16 @@ jobs:
           done
 
       - name: Thin lto
+        if: ${{ github.event.inputs.THIN_LTO == 'true' }}
         run: |
           git init || echo "无需init"
           rm -rf target && echo "删除了target" || echo "无需删除"
           git add  . && git commit -m "auto commit" || echo "无需提交"
-          if [ "${{ github.event.inputs.THIN_LTO }}" = "true" ]; then
-              for i in "thin_lto.patch"; do
-                 wget https://github.com/reigadegr/rustfs_compile/raw/main/patchs/$i
-                 patch -p1 -F 3 < $i && git add  . && git commit -m "auto commit" || git reset --hard
-                 git clean -df
-              done
-          fi
+          for i in "thin_lto.patch"; do
+             wget https://github.com/reigadegr/rustfs_compile/raw/main/patchs/$i
+             patch -p1 -F 3 < $i && git add  . && git commit -m "auto commit" || git reset --hard
+             git clean -df
+          done
 
       - name: Clippy force fix
         if: ${{ github.event.inputs.CLIPPY_FIX == 'true' }}
@@ -255,10 +254,10 @@ jobs:
                 sed -i '1i #![warn(clippy::nursery, clippy::pedantic, clippy::style, clippy::complexity, clippy::perf, clippy::correctness)]' src/main.rs
             fi
             git add  . && git commit -m "auto commit" || echo "无需提交"
-            cargo clippy --fix --allow-dirty --allow-staged -- -W clippy::all -W clippy::pedantic -W clippy::cargo -A clippy::restriction >/dev/null 2>&1 || continue
+            cargo clippy --fix --allow-dirty --allow-staged -- -W clippy::all -W clippy::pedantic -W clippy::cargo -W clippy::nursery -W clippy::style -W clippy::complexity -W clippy::perf -W clippy::correctness  -A clippy::restriction >/dev/null 2>&1 || continue
             git add  . && git commit -m "auto commit" || echo "无需提交"
           done
-                  
+
       - name: Build RustFS
         shell: bash
         run: |

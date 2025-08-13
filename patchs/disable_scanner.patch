@@ -1,14 +1,12 @@
 diff --git a/rustfs/src/main.rs b/rustfs/src/main.rs
-index 8275d84..22a5092 100644
+index 1a95efe..c8e4477 100644
 --- a/rustfs/src/main.rs
 +++ b/rustfs/src/main.rs
-@@ -193,8 +193,8 @@ async fn run(opt: config::Opt) -> Result<()> {
-     let heal_storage = Arc::new(ECStoreHealStorage::new(store.clone()));
+@@ -190,7 +190,7 @@ async fn run(opt: config::Opt) -> Result<()> {
      let heal_manager = init_heal_manager(heal_storage, None).await?;
  
--    let scanner = Scanner::new(Some(ScannerConfig::default()), Some(heal_manager));
+     let scanner = Scanner::new(Some(ScannerConfig::default()), Some(heal_manager));
 -    scanner.start().await?;
-+    let scanner = Scanner::new(Some(ScannerConfig::default()), Some(heal_manager));
 +    // scanner.start().await?;
      print_server_info();
      init_bucket_replication_pool().await;

@@ -316,7 +316,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: rustfs_windows
-          path: target/rustfs.exe
+          path: target/x86_64-pc-windows-msvc/rustfs.exe
           retention-days: 1
 
   # Build minio client binaries

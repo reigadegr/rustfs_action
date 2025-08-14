@@ -55,6 +55,8 @@ runs:
           musl-tools \
           build-essential \
           lld \
+          llvm \
+          clang \
           libdbus-1-dev \
           libwayland-dev \
           libwebkit2gtk-4.1-dev \

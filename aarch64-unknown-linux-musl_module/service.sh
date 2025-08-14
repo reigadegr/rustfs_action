@@ -11,8 +11,8 @@ wait_until_login() {
 
 wait_until_login
 
-export RUSTFS_VOLUMES="/storage/emulated/0/Android/rustfs"  
-export RUSTFS_ADDRESS=":9000"
+export RUSTFS_VOLUMES="/sdcard/Android/rustfs"
+export RUSTFS_ADDRESS="0.0.0.0:9000"
 export RUST_LOG="warn"
 
 export RUSTFS_ACCESS_KEY="rustfsadmin_name"
@@ -37,7 +37,7 @@ killall -15 mc
 chmod +x $MODDIR/mc
 sleep 1
 # 起别名
-$MODDIR/mc alias set myminio "http://localhost$RUSTFS_ADDRESS" $RUSTFS_ACCESS_KEY $RUSTFS_SECRET_KEY
+$MODDIR/mc alias set myminio "http://$RUSTFS_ADDRESS" $RUSTFS_ACCESS_KEY $RUSTFS_SECRET_KEY
 
 # 创建桶
 $MODDIR/mc mb myminio/mybucket

@@ -315,8 +315,15 @@ jobs:
       - name: Upload to GitHub artifacts
         uses: actions/upload-artifact@v4
         with:
+          name: rustfs_windows_msvc
+          path: target/x86_64-pc-windows-msvc/release/rustfs.exe
+          retention-days: 1
+
+      - name: Upload to GitHub artifacts
+        uses: actions/upload-artifact@v4
+        with:
           name: rustfs_windows
-          path: target/x86_64-pc-windows-msvc/rustfs.exe
+          path: target/release/rustfs.exe
           retention-days: 1
 
   # Build minio client binaries

@@ -310,8 +310,7 @@ jobs:
 
       - name: Start build
         run: |
-          cargo install cross --git https://github.com/cross-rs/cross
-          cross build --release --target ${{ matrix.target }} -p rustfs --bins
+          cargo build --release --target ${{ matrix.target }} -p rustfs --bins
           
       - name: Upload to GitHub artifacts
         uses: actions/upload-artifact@v4

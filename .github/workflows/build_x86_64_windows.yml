@@ -304,7 +304,9 @@ jobs:
         run: |
           export RUSTFLAGS="\
             -C default-linker-libraries \
-            -C link-args=-fomit-frame-pointer"
+            -C link-args=-fomit-frame-pointer \
+            -C link-args=-Wl,-O3,--gc-sections,--as-needed \
+            -C link-args=-Wl,-z,norelro,-x,-s,--strip-all"
           rm -f Cargo.lock
           cargo build --release --target ${{ matrix.target }} -p rustfs --bins
           

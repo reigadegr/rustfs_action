@@ -23,7 +23,6 @@ export RUSTFLAGS="
     -C llvm-args=-enable-shrink-wrap=1 \
     -C llvm-args=-mergefunc-use-aliases \
     -C llvm-args=-enable-dfa-jump-thread \
-    -C llvm-args=-enable-ml-inliner=release \
     -C llvm-args=-enable-loop-versioning-licm \
     -C llvm-args=-regalloc-enable-advisor=release \
     -C llvm-args=-inliner-interactive-include-default \

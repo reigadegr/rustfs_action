@@ -245,13 +245,13 @@ jobs:
       - name: Nightly fix
         if: ${{ github.event.inputs.TOOL_FIX == 'true' }}
         run: |
-          rustup toolchain install nightly-2025-08-11
+          rustup toolchain install nightly-2025-08-09
 
             # 把常用组件补回来
-          rustup component add --toolchain nightly-2025-08-11 rust-src clippy rustfmt
+          rustup component add --toolchain nightly-2025-08-09 rust-src clippy rustfmt
             
             # 把交叉目标补回来
-          rustup toolchain install nightly-2025-08-11 \
+          rustup toolchain install nightly-2025-08-09 \
           --component rust-src,llvm-tools-preview \
           --target aarch64-unknown-linux-musl
 

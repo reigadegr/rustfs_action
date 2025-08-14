@@ -22,7 +22,7 @@
 # 3. Trigger docker.yml to build and push images using the uploaded binaries
 #
 
-name: Release Build x86_64-windows-msvc
+name: Release Build x86_64-pc-windows-msvc
 
 on:
   workflow_dispatch:

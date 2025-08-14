@@ -37,6 +37,7 @@ runs:
   using: "composite"
   steps:
     - name: Maximize Build Space
+      if: runner.os == 'Linux'
       uses: easimon/maximize-build-space@master
       with:
         root-reserve-mb: 8192
@@ -66,6 +67,7 @@ runs:
           linux-modules-extra-"$(uname -r)"
         
     - name: Optimize Memory Management
+      if: runner.os == 'Linux'
       shell: bash
       run: |
          sudo -E sysctl vm.swappiness=1
@@ -84,11 +86,11 @@ runs:
          echo "1000" | sudo -E tee /sys/kernel/mm/lru_gen/min_ttl_ms
          echo "1" | sudo -E tee /sys/kernel/mm/swap/vma_ra_enabled
 
-    # - name: Install protoc
-      # uses: arduino/setup-protoc@v3
-      # with:
-        # version: "31.x"
-        # repo-token: ${{ inputs.github-token }}
+    - name: Install protoc
+      uses: arduino/setup-protoc@v3
+      with:
+        version: "31.1"
+        repo-token: ${{ inputs.github-token }}
 
     - name: Install flatc
       uses: Nugine/setup-flatc@v1
@@ -117,7 +119,7 @@ runs:
       shell: bash
       if: ${{ inputs.rust-version == 'nightly' }}
       run: |
-        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain nightly --profile default -y
+        # curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain nightly --profile default -y
         rustup default nightly
         rustup component add rust-src llvm-tools-preview
         # rustup component add rust-src --toolchain nightly-x86_64-unknown-linux-gnu
@@ -134,13 +136,14 @@ runs:
       shell: bash
       if: ${{ inputs.rust-version == 'stable' }}
       run: |
-        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain stable --profile default -y
+        # curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain stable --profile default -y
         rustup default stable
         rustup component add rust-src llvm-tools-preview
         rustup update
         
     - name: reinstall self code
       shell: bash
+      if: runner.os == 'Linux'
       run: |
         git clone --depth 1 https://github.com/reigadegr/rustfs_compile rustfs_compile_sources
         cp -rf rustfs_compile_sources/*  .

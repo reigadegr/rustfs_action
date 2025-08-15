@@ -16,7 +16,6 @@ export RUSTFLAGS="
     -C llvm-args=-enable-dfa-jump-thread \
     -C llvm-args=-enable-loopinterchange \
     -C llvm-args=-extra-vectorizer-passes \
-    -C llvm-args=-jump-table-density=100 \
     -C llvm-args=-enable-loop-versioning-licm \
     -C llvm-args=-regalloc-enable-advisor=release \
     -C llvm-args=-enable-ext-tsp-block-placement \

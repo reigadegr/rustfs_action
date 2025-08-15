@@ -1,17 +1,5 @@
 #!/bin/bash
 
-case "$1" in
-  aarch64-*)
-    EXTRA_LLVM="arm64-mixed"
-    ;;
-  x86_64-*)
-    EXTRA_LLVM="x86_64-mixed"
-    ;;
-  *)
-    EXTRA_LLVM=""
-    ;;
-esac
-
 export RUSTFLAGS="
     -C default-linker-libraries \
     -C llvm-args=-enable-ipra \
@@ -25,12 +13,11 @@ export RUSTFLAGS="
     -C llvm-args=-enable-dfa-jump-thread \
     -C llvm-args=-enable-loopinterchange \
     -C llvm-args=-extra-vectorizer-passes \
+    -C llvm-args=-jump-table-density=100 \
     -C llvm-args=-enable-loop-versioning-licm \
     -C llvm-args=-regalloc-enable-advisor=release \
     -C llvm-args=-enable-ext-tsp-block-placement \
     -C llvm-args=-inliner-interactive-include-default \
-    -C llvm-args=-ml-inliner-skip-policy=if-caller-not-cold \
-    -C llvm-args=-ml-inliner-model-selector=${EXTRA_LLVM} \
     -C llvm-args=-enable-scalable-autovec-in-streaming-mode \
     -C link-args=-fomit-frame-pointer \
     -C link-args=-Wl,-O3,--gc-sections,--as-needed \

@@ -8,8 +8,8 @@ index 5c4ea98..aece15e 100644
  const accessKeyAndSecretKey = ref({
 -  accessKeyId: '',
 -  secretAccessKey: '',
-+  accessKeyId: 'rfsname',
-+  secretAccessKey: 'rfspswd',
++  accessKeyId: 'rfsaccess',
++  secretAccessKey: 'rfssecret',
  })
  
  const sts = ref({

@@ -14,10 +14,8 @@ esac
 
 export RUSTFLAGS="
     -C default-linker-libraries \
-    -Z external-clangrt \
     -Z remap-cwd-prefix=. \
     -Z dep-info-omit-d-target \
-    -Z merge-functions=aliases \
     -C llvm-args=-enable-ipra \
     -C llvm-args=-enable-misched \
     -C llvm-args=-enable-gvn-hoist \
@@ -30,6 +28,7 @@ export RUSTFLAGS="
     -C llvm-args=-enable-loopinterchange \
     -C llvm-args=-extra-vectorizer-passes \
     -C llvm-args=-enable-ml-inliner=release \
+    -C llvm-args=-enable-loop-unroll-and-jam \
     -C llvm-args=-enable-loop-versioning-licm \
     -C llvm-args=-regalloc-enable-advisor=release \
     -C llvm-args=-enable-ext-tsp-block-placement \

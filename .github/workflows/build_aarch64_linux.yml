@@ -35,11 +35,6 @@ on:
         options:
           - "stable"
           - "nightly"
-      TOOL_FIX:
-        type: boolean
-        description: "是否回退nightly版本？"
-        required: true
-        default: false
       USE_MIMALLOC:
         type: boolean
         description: "是否使用mimalloc替换tikv-jemalloc？"
@@ -241,19 +236,6 @@ jobs:
              patch -p1 -F 3 < $i && git add  . && git commit -m "auto commit" || git reset --hard
              git clean -df
           done
-
-      - name: Nightly fix
-        if: ${{ github.event.inputs.TOOL_FIX == 'true' }}
-        run: |
-          rustup toolchain install nightly-2025-08-09
-
-            # 把常用组件补回来
-          rustup component add --toolchain nightly-2025-08-09 rust-src clippy rustfmt
-            
-            # 把交叉目标补回来
-          rustup toolchain install nightly-2025-08-09 \
-          --component rust-src,llvm-tools-preview \
-          --target aarch64-unknown-linux-musl
 
       - name: Clippy force fix
         if: ${{ github.event.inputs.CLIPPY_FIX == 'true' }}

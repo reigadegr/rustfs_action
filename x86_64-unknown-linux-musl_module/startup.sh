@@ -6,8 +6,8 @@ export RUSTFS_VOLUMES="$MODDIR/nas"
 export RUSTFS_ADDRESS=":9000"
 export RUST_LOG="warn"
 
-export RUSTFS_ACCESS_KEY="rustfsadmin_name"
-export RUSTFS_SECRET_KEY="rustfsadmin_pswd"
+export RUSTFS_ACCESS_KEY="rfsname"
+export RUSTFS_SECRET_KEY="rfspswd"
 
 killall -15 rustfs; rm $LOG
 chmod +x ${0%/*}/rustfs

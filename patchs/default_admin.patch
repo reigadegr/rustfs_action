@@ -8,8 +8,8 @@ index 5c4ea98..aece15e 100644
  const accessKeyAndSecretKey = ref({
 -  accessKeyId: '',
 -  secretAccessKey: '',
-+  accessKeyId: 'rustfsadmin_name',
-+  secretAccessKey: 'rustfsadmin_pswd',
++  accessKeyId: 'rfsname',
++  secretAccessKey: 'rfspswd',
  })
  
  const sts = ref({

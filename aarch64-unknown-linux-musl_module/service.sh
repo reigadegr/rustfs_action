@@ -15,8 +15,8 @@ export RUSTFS_VOLUMES="/sdcard/Android/rustfs"
 export RUSTFS_ADDRESS="0.0.0.0:9000"
 export RUST_LOG="warn"
 
-export RUSTFS_ACCESS_KEY="rustfsadmin_name"
-export RUSTFS_SECRET_KEY="rustfsadmin_pswd"
+export RUSTFS_ACCESS_KEY="rfsname"
+export RUSTFS_SECRET_KEY="rfspswd"
 
 killall -15 rustfs; rm $LOG
 chmod +x ${0%/*}/rustfs
@@ -28,7 +28,8 @@ if [  ! -z "$(echo $ip | grep ':' )" ]; then
     ip="$(echo $ip | cut -d ':' -f2)"
 fi
 sed -i '/description=/d' $MODDIR/module.prop
-echo "description=访问$ip$RUSTFS_ADDRESS" >> $MODDIR/module.prop
+port="$(echo $RUSTFS_ADDRESS | cut -d ':' -f2)"
+echo "description=访问$ip:$port" >> $MODDIR/module.prop
 
 export MC_CONFIG_DIR="/sdcard/Android/rustfs/.mc"  
 mkdir -p "$MC_CONFIG_DIR"

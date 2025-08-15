@@ -275,7 +275,7 @@ jobs:
       - name: Upload to GitHub artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: aarch64_rustfs
+          name: aarch64_linux_musl_rustfs
           path: aarch64-unknown-linux-musl_module/rustfs
           retention-days: 1
 
@@ -339,7 +339,7 @@ jobs:
       - name: Upload to GitHub artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: aarch64_mc
+          name: aarch64_linux_mc
           path: mc
           retention-days: 1
 
@@ -356,12 +356,12 @@ jobs:
       - name: Download mc
         uses: actions/download-artifact@v4
         with:
-          name: aarch64_mc
+          name: aarch64_linux_mc
 
       - name: Download rustfs
         uses: actions/download-artifact@v4
         with:
-          name: aarch64_rustfs
+          name: aarch64_linux_musl_rustfs
 
       - name: Production magisk module
         run: |

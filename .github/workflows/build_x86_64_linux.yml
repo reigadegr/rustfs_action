@@ -157,7 +157,7 @@ jobs:
       - name: Setup Rust environment
         uses: ./.github/actions/setup
         with:
-          rust-version: stable
+          rust-version: ${{ github.event.inputs.TOOLCHAINS }}
           target: ${{ matrix.target }}          
           github-token: ${{ secrets.GITHUB_TOKEN }}
           install-cross-tools: ${{ matrix.cross }}

@@ -2,9 +2,7 @@
 
 export RUSTFLAGS="
     -C default-linker-libraries \
-    -C llvm-args=-enable-ipra \
     -C llvm-args=-enable-misched \
-    -C llvm-args=-enable-gvn-hoist \
     -C llvm-args=-hot-cold-split=true \
     -C llvm-args=-aggressive-ext-opt \
     -C llvm-args=-enable-post-misched \

@@ -31,7 +31,7 @@ on:
         type: choice
         description: "使用的工具链"
         required: true
-        default: "stable"
+        default: "nightly"
         options:
           - "stable"
           - "nightly"

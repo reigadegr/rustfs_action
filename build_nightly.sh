@@ -15,7 +15,6 @@ esac
 export RUSTFLAGS="
     -C default-linker-libraries \
     -Z external-clangrt \
-    -Z macro-backtrace \
     -Z remap-cwd-prefix=. \
     -Z dep-info-omit-d-target \
     -Z merge-functions=aliases \

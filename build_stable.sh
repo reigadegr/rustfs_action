@@ -14,17 +14,20 @@ esac
 
 export RUSTFLAGS="
     -C default-linker-libraries \
+    -C llvm-args=-enable-ipra \
     -C llvm-args=-enable-misched \
     -C llvm-args=-enable-gvn-hoist \
     -C llvm-args=-hot-cold-split=true \
     -C llvm-args=-aggressive-ext-opt \
-    -C llvm-args=-enable-loop-flatten \
     -C llvm-args=-enable-post-misched \
     -C llvm-args=-enable-shrink-wrap=1 \
     -C llvm-args=-mergefunc-use-aliases \
     -C llvm-args=-enable-dfa-jump-thread \
+    -C llvm-args=-enable-loopinterchange \
+    -C llvm-args=-extra-vectorizer-passes \
     -C llvm-args=-enable-loop-versioning-licm \
     -C llvm-args=-regalloc-enable-advisor=release \
+    -C llvm-args=-enable-ext-tsp-block-placement \
     -C llvm-args=-inliner-interactive-include-default \
     -C llvm-args=-ml-inliner-skip-policy=if-caller-not-cold \
     -C llvm-args=-ml-inliner-model-selector=${EXTRA_LLVM} \

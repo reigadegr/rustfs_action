@@ -1,0 +1,34 @@
+diff --git a/crates/ecstore/Cargo.toml b/crates/ecstore/Cargo.toml
+index 1e3d815..90ea21a 100644
+--- a/crates/ecstore/Cargo.toml
++++ b/crates/ecstore/Cargo.toml
+@@ -100,6 +100,7 @@ rustfs-rio.workspace = true
+ rustfs-signer.workspace = true
+ rustfs-checksums.workspace = true
+ futures-util.workspace = true
++async-recursion.workspace = true
+ 
+ [target.'cfg(not(windows))'.dependencies]
+ nix = { workspace = true }
+diff --git a/crates/ecstore/src/disk/local.rs b/crates/ecstore/src/disk/local.rs
+index 8da3779..51cd4ff 100644
+--- a/crates/ecstore/src/disk/local.rs
++++ b/crates/ecstore/src/disk/local.rs
+@@ -440,6 +440,7 @@ impl LocalDisk {
+     }
+ 
+     #[tracing::instrument(level = "debug", skip(self))]
++    #[async_recursion::async_recursion]
+     pub async fn delete_file(
+         &self,
+         base_path: &PathBuf,
+@@ -803,7 +804,8 @@ impl LocalDisk {
+         Ok(())
+     }
+ 
+-    async fn scan_dir<W: AsyncWrite + Unpin>(
++    #[async_recursion::async_recursion]
++    async fn scan_dir<W: AsyncWrite + Unpin + std::marker::Send>(
+         &self,
+         current: &mut String,
+         opts: &WalkDirOptions,

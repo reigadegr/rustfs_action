@@ -23,7 +23,7 @@ export RUSTFLAGS="
     -C llvm-args=-enable-scalable-autovec-in-streaming-mode \
     -C link-args=-fomit-frame-pointer \
     -C link-args=-Wl,-O3,--gc-sections,--as-needed \
-    -C link-args=-Wl,-z,norelro,-x,-s,--strip-all
+    -C link-args=-Wl,-z,relro,-z,now,-x,-s,--strip-all
 " 
 
 rm -rf Cargo.lock

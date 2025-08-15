@@ -313,7 +313,7 @@ jobs:
       - name: Upload to GitHub artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: rustfs_windows_msvc
+          name: x86_64_msvc_rustfs
           path: target/x86_64-pc-windows-msvc/release/rustfs.exe
           retention-days: 1
 
@@ -373,43 +373,44 @@ jobs:
       - name: Upload to GitHub artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: x86_64mc
+          name: x86_64_msvc_mc
           path: mc_tmpdir/mc.exe
           retention-days: 1
 
-  # integration-magisk:
-    # name: Integration Magisk
-    # needs: [build-rustfs, build-mc]
-    # runs-on: ubuntu-latest
-    # steps:
-      # - name: Checkout repository
-        # uses: actions/checkout@v5
-        # with:
-          # fetch-depth: 0
+  integration-product:
+    name: Integration Magisk
+    needs: [build-rustfs, build-mc]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
       
-      # - name: Download mc
-        # uses: actions/download-artifact@v4
-        # with:
-          # name: x86_64mc
+      - name: Download mc
+        uses: actions/download-artifact@v4
+        with:
+          name: x86_64_msvc_mc
 
-      # - name: Download rustfs
-        # uses: actions/download-artifact@v4
-        # with:
-          # name: x86_64rustfs
+      - name: Download rustfs
+        uses: actions/download-artifact@v4
+        with:
+          name: x86_64_msvc_rustfs
 
-      # - name: Production magisk module
-        # run: |
-          # ls -al
-          # file *
-          # mv mc x86_64-unknown-linux-musl_module
-          # mv rustfs x86_64-unknown-linux-musl_module
+      - name: Production
+        run: |
+          ls -al
+          file *
+          mkdir windows_msvc
+          mv mc.exe windows_msvc
+          mv rustfs.exe windows_msvc
        
-      # - name: Upload release version
-        # uses: actions/upload-artifact@v4
-        # with:
-          # name: magisk_rustfs
-          # compression-level: 9
-          # path: x86_64-unknown-linux-musl_module/*
+      - name: Upload release version
+        uses: actions/upload-artifact@v4
+        with:
+          name: magisk_rustfs
+          compression-level: 9
+          path: windows_msvc/*
 
   # Build summary
   build-summary:

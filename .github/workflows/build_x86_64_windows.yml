@@ -207,6 +207,7 @@ jobs:
           for i in "disable_scanner.patch" \
             "use_mimalloc.patch" \
             "fix_async_recursion.patch" \
+            "fix_multi_bound.patch" \
             "full_opt.patch"; do
              wget https://github.com/reigadegr/rustfs_compile/raw/main/patchs/$i
              patch -p1 -F 3 < $i && git add  . && git commit -m "auto commit" || git reset --hard

@@ -28,7 +28,7 @@ index 8da3779..51cd4ff 100644
  
 -    async fn scan_dir<W: AsyncWrite + Unpin>(
 +    #[async_recursion::async_recursion]
-+    async fn scan_dir<W: AsyncWrite + Unpin + std::marker::Send>(
++    async fn scan_dir<W: AsyncWrite + Unpin + Send>(
          &self,
          current: &mut String,
          opts: &WalkDirOptions,

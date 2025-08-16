@@ -373,14 +373,14 @@ jobs:
       - name: Upload release version
         uses: actions/upload-artifact@v4
         with:
-          name: magisk_rustfs
+          name: aarch64-magisk-rustfs-linux-musl
           compression-level: 9
           path: aarch64-unknown-linux-musl_module/*
 
   # Build summary
   build-summary:
     name: Build Summary
-    needs: [build-check, build-rustfs, build-mc]
+    needs: [build-rustfs, build-mc]
     if: always() && needs.build-check.outputs.should_build == 'true'
     runs-on: ubuntu-latest
     steps:

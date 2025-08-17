@@ -2,7 +2,6 @@
 
 export RUSTFLAGS="
     -C default-linker-libraries \
-    -C relocation-model=static \
     -C llvm-args=-vectorize-loops \
     -C llvm-args=-enable-misched \
     -C llvm-args=-enable-branch-hint \

@@ -2,23 +2,15 @@
 
 export RUSTFLAGS="
     -C default-linker-libraries \
+    -C relocation-model=static \
+    -C llvm-args=-vectorize-loops \
     -C llvm-args=-enable-misched \
-    -C llvm-args=-hot-cold-split=true \
-    -C llvm-args=-aggressive-ext-opt \
+    -C llvm-args=-enable-branch-hint \
     -C llvm-args=-enable-post-misched \
-    -C llvm-args=-enable-shrink-wrap=1 \
-    -C llvm-args=-mergefunc-use-aliases \
     -C llvm-args=-enable-dfa-jump-thread \
-    -C llvm-args=-enable-loopinterchange \
-    -C llvm-args=-extra-vectorizer-passes \
-    -C llvm-args=-enable-loop-versioning-licm \
-    -C llvm-args=-regalloc-enable-advisor=release \
-    -C llvm-args=-enable-ext-tsp-block-placement \
-    -C llvm-args=-inliner-interactive-include-default \
-    -C llvm-args=-enable-scalable-autovec-in-streaming-mode \
     -C link-args=-fomit-frame-pointer \
     -C link-args=-Wl,-O3,--gc-sections,--as-needed \
-    -C link-args=-Wl,-z,relro,-z,now,-x,-s,--strip-all
+    -C link-args=-Wl,-z,relro,-z,now,-x,-z,noexecstack,-s,--strip-all
 " 
 
 rm -rf Cargo.lock

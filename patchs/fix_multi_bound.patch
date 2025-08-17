@@ -4,7 +4,7 @@ index fb3af2a..c363988 100644
 +++ b/crates/ecstore/src/disk/local.rs
 @@ -805,13 +805,16 @@ impl LocalDisk {
      }
-
+ 
      #[async_recursion::async_recursion]
 -    async fn scan_dir<W: AsyncWrite + Unpin + Send>(
 +    async fn scan_dir<W>(

@@ -4,6 +4,7 @@ export RUSTFLAGS="
     -Z mir-opt-level=2 \
     -Z share-generics=yes \
     -Z remap-cwd-prefix=. \
+    -Z function-sections=yes \
     -Z dep-info-omit-d-target \
     -C default-linker-libraries \
     -C relocation-model=static \

@@ -3,20 +3,20 @@
 export RUSTFLAGS="
     -Z validate-mir \
     -Z verify-llvm-ir \
-    -Z mir-opt-level=2 \
+    -Z mir-opt-level=1 \
     -Z share-generics=yes \
     -Z remap-cwd-prefix=. \
     -Z function-sections=yes \
     -Z dep-info-omit-d-target \
     -C default-linker-libraries \
     -C symbol-mangling-version=v0 \
-    -C llvm-args=-vectorize-loops \
+    -C llvm-args=-fp-contract=off \
     -C llvm-args=-enable-misched \
     -C llvm-args=-enable-branch-hint \
     -C llvm-args=-enable-post-misched \
     -C llvm-args=-enable-dfa-jump-thread \
     -C link-args=-fomit-frame-pointer \
-    -C link-args=-Wl,-O3,--gc-sections,--as-needed \
+    -C link-args=-Wl,-O1,--gc-sections,--as-needed \
     -C link-args=-Wl,-z,relro,-z,now,-x,-z,noexecstack,-s,--strip-all
 " 
 

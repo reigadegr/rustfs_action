@@ -2,6 +2,7 @@
 
 export RUSTFLAGS="
     -C default-linker-libraries \
+    -C symbol-mangling-version=v0 \
     -C llvm-args=-vectorize-loops \
     -C llvm-args=-enable-misched \
     -C llvm-args=-enable-branch-hint \

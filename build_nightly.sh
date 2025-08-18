@@ -12,10 +12,10 @@ export RUSTFLAGS="
     -C symbol-mangling-version=v0 \
     -C llvm-args=-fp-contract=off \
     -C llvm-args=-enable-misched \
-    -C llvm-args=-enable-branch-hint \
     -C llvm-args=-enable-post-misched \
     -C llvm-args=-enable-dfa-jump-thread \
     -C link-args=-fomit-frame-pointer \
+    -C link-args=-Wl,--sort-section=alignment \
     -C link-args=-Wl,-O1,--gc-sections,--as-needed \
     -C link-args=-Wl,-z,relro,-z,now,-x,-z,noexecstack,-s,--strip-all
 " 

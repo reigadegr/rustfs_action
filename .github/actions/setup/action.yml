@@ -145,14 +145,20 @@ runs:
         rustup component add rust-src llvm-tools-preview
         rustup update
         
-    - name: Install NASM
-      shell: bash
+    # - name: Install NASM
+      # shell: bash
+      # if: runner.os == 'Windows'
+      # run: |
+        # choco install nasm
+        # echo "C:\Program Files\NASM" >> $GITHUB_PATH
+        # nasm -v
+
+    - name: Setup NASM
       if: runner.os == 'Windows'
-      run: |
-        choco install nasm
-        echo "C:\Program Files\NASM" >> $GITHUB_PATH
-        nasm -v
-                
+      uses: ilammy/setup-nasm@v1
+      with:
+        version: '2.16.01' 
+                          
     - name: reinstall self code
       shell: bash
       run: |

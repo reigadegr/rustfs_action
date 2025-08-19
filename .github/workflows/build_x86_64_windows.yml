@@ -310,7 +310,6 @@ jobs:
           else
             sh build_stable_no_cross.sh "${{ matrix.target }}"
           fi
-          mv x86_64-unknown-linux-musl_module/rustfs x86_64-unknown-linux-musl_module/rustfs.exe
 
       - name: Upload to GitHub artifacts
         uses: actions/upload-artifact@v4

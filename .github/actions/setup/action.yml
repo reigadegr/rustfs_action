@@ -117,7 +117,7 @@ runs:
 
     - name: Setup rust nightly musl toolchains
       shell: bash
-      if: ${{ inputs.rust-version == 'nightly' }}
+      if: inputs.rust-version == 'nightly'
       run: |
         # curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain nightly --profile default -y
         rustup default nightly
@@ -138,13 +138,21 @@ runs:
         
     - name: Setup rust stable musl toolchains
       shell: bash
-      if: ${{ inputs.rust-version == 'stable' }}
+      if: inputs.rust-version == 'stable'
       run: |
         # curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain stable --profile default -y
         rustup default stable
         rustup component add rust-src llvm-tools-preview
         rustup update
         
+    - name: Install NASM
+      shell: bash
+      if: runner.os == 'Windows'
+      run: |
+        choco install nasm
+        echo "C:\Program Files\NASM" >> $GITHUB_PATH
+        nasm -v
+                
     - name: reinstall self code
       shell: bash
       run: |

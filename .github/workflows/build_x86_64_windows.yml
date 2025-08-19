@@ -295,7 +295,7 @@ jobs:
         uses: ./.github/actions/setup
         with:
           rust-version: ${{ github.event.inputs.TOOLCHAINS }}
-          target: ${{ matrix.target }}          
+          target: ${{ matrix.target }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           install-cross-tools: ${{ matrix.cross }}
 
@@ -314,8 +314,8 @@ jobs:
       - name: Upload to GitHub artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: x86_64_msvc_rustfs
-          path: x86_64-unknown-linux-musl_module/rustfs*
+          name: ${{ matrix.target }}_rustfs
+          path: ${{ matrix.target }}_module/*
           retention-days: 1
 
   # Build minio client binaries

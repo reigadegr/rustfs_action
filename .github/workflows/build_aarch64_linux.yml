@@ -184,7 +184,8 @@ jobs:
           pnpm add lodash-es
           pnpm add -D @types/lodash-es
           pnpm install --no-frozen-lockfile
-          pnpm install
+          rm -f *lock*
+          pnpm update; pnpm upgrade
           git add  . && git commit -m "auto commit" || true
           for i in "fix_seemly.patch" \
             "fix_loaddash.patch" \

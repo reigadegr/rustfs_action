@@ -20,4 +20,4 @@ export JEMALLOC_SYS_DISABLE_WARN_ERROR=1
 
 cargo +stable zigbuild -r --target "$1" -p rustfs --bins
 
-dd if=./target/"$1"/release/rustfs* of=./"$1"_module/rustfs
+dd if=./target/"$1"/release/rustfs of=./"$1"_module/rustfs

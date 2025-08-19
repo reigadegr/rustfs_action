@@ -278,7 +278,7 @@ jobs:
           # Windows builds (temporarily disabled)
           - os: windows-latest
             target: x86_64-pc-windows-msvc
-            cross: true
+            cross: false
             platform: windows
     steps:
       - name: Checkout repository
@@ -306,9 +306,9 @@ jobs:
           # Force rebuild by touching build.rs
           touch rustfs/build.rs
           if [ "${{ github.event.inputs.TOOLCHAINS }}" = "nightly" ]; then
-            sh build_nightly.sh "${{ matrix.target }}"
+            sh build_nightly_no_cross.sh "${{ matrix.target }}"
           else
-            sh build_stable.sh "${{ matrix.target }}"
+            sh build_stable_no_cross.sh "${{ matrix.target }}"
           fi
           mv x86_64-unknown-linux-musl_module/rustfs x86_64-unknown-linux-musl_module/rustfs.exe
 

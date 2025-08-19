@@ -277,7 +277,7 @@ jobs:
           # Windows builds (temporarily disabled)
           - os: windows-latest
             target: x86_64-pc-windows-msvc
-            cross: false
+            cross: true
             platform: windows
     steps:
       - name: Checkout repository

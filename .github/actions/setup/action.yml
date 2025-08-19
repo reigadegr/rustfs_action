@@ -131,7 +131,7 @@ runs:
             rustup component add rust-src --toolchain nightly-aarch64-unknown-linux-musl
             rustup target add aarch64-unknown-linux-musl --toolchain nightly
         else
-            rustup component add rust-src --toolchain "${{ inputs.target }}"
+            rustup component add rust-src --toolchain nightly-"${{ inputs.target }}"
             rustup target add "${{ inputs.target }}" --toolchain nightly
         fi
         rustup update

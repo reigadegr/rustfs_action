@@ -396,7 +396,8 @@ jobs:
       - name: Download rustfs
         uses: actions/download-artifact@v4
         with:
-          name: x86_64_msvc_rustfs
+          pattern: "*_rustfs"
+          merge-multiple: true
 
       - name: Production
         run: |

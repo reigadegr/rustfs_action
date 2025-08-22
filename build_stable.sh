@@ -12,7 +12,7 @@ export RUSTFLAGS="
     -C link-args=-Wl,-z,relro,-z,now,-x,-z,noexecstack,-s,--strip-all
 " 
 
-rm -rf Cargo.lock
+cargo update
 
 export CARGO_TERM_COLOR=always
 

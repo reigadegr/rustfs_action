@@ -8,7 +8,7 @@ export RUSTFLAGS="
     -Z remap-cwd-prefix=. \
     -Z function-sections=yes \
     -Z dep-info-omit-d-target \
-    -C default-linker-libraries \
+    -C relocation-model=static \
     -C symbol-mangling-version=v0 \
     -C llvm-args=-fp-contract=off \
     -C llvm-args=-enable-misched \

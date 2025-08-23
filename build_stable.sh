@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export RUSTFLAGS="
-    -C default-linker-libraries \
+    -C relocation-model=static \
     -C symbol-mangling-version=v0 \
     -C llvm-args=-fp-contract=off \
     -C llvm-args=-enable-misched \

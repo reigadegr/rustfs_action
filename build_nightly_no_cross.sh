@@ -19,6 +19,8 @@ export RUSTFLAGS="
     -C link-args=-Wl,-z,relro,-z,now,-x,-z,noexecstack,-s,--strip-all
 " 
 
+rm rust-toolchain.toml || true
+
 cargo update
 
 export CARGO_TERM_COLOR=always

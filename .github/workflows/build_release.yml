@@ -22,6 +22,11 @@ on:
           - "x86_64-pc-windows-msvc"
           - "aarch64-apple-darwin"
           - "x86_64-apple-darwin"
+      USE_MIMALLOC:
+        type: boolean
+        description: "是否使用mimalloc替代tikv-jemallocator？"
+        required: true
+        default: false
 
 env:
   CARGO_TERM_COLOR: always
@@ -45,6 +50,7 @@ jobs:
           echo "-----------------------"
           echo "Selected TOOLCHAINS: ${{ github.event.inputs.TOOLCHAINS }}"
           echo "Selected TARGET: ${{ github.event.inputs.TARGET }}"
+          echo "Selected USE_MIMALLOC: ${{ github.event.inputs.USE_MIMALLOC }}"
           echo "-----------------------"
 
   # Build RustFS binaries

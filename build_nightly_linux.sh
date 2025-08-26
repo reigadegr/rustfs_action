@@ -1,8 +1,6 @@
 #!/bin/bash
 
 export RUSTFLAGS="
-    -Z validate-mir \
-    -Z verify-llvm-ir \
     -Z mir-opt-level=2 \
     -Z dylib-lto=yes \
     -Z inline-mir=yes \
@@ -18,10 +16,8 @@ export RUSTFLAGS="
     -Z saturating-float-casts=yes \
     -Z mir-enable-passes=+Inline \
     -Z precise-enum-drop-elaboration=yes \
-    -C lto=fat \
     -C relro-level=full \
     -C code-model=small \
-    -C embed-bitcode=yes \
     -C relocation-model=static \
     -C symbol-mangling-version=v0 \
     -C llvm-args=-fp-contract=off \

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export RUSTFLAGS="
-    -C relro-level=full \
+    -C relro-level=none \
     -C code-model=small \
     -C relocation-model=static \
     -C symbol-mangling-version=v0 \

@@ -12,7 +12,7 @@ export RUSTFLAGS="
     -Z dep-info-omit-d-target \
     -Z flatten-format-args=yes \
     -Z mir-enable-passes=+Inline \
-    -C relro-level=full \
+    -C relro-level=none \
     -C code-model=small \
     -C relocation-model=static \
     -C symbol-mangling-version=v0 \

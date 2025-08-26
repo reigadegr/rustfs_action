@@ -26,7 +26,7 @@ on:
         type: boolean
         description: "是否使用mimalloc替代tikv-jemallocator？"
         required: true
-        default: false
+        default: true
 
 env:
   CARGO_TERM_COLOR: always

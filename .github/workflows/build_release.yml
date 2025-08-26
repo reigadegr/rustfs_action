@@ -180,7 +180,6 @@ jobs:
   build-mc:
     name: Build MC
     needs: [build-check]
-    if: needs.build-check.outputs.should_build == 'true'
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     strategy:

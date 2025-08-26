@@ -1,10 +1,8 @@
 #!/bin/bash
 
 export RUSTFLAGS="
-    -C lto=fat \
     -C relro-level=full \
     -C code-model=small \
-    -C embed-bitcode=yes \
     -C relocation-model=static \
     -C symbol-mangling-version=v0 \
     -C llvm-args=-fp-contract=off \

@@ -119,21 +119,11 @@ runs:
       shell: bash
       if: inputs.rust-version == 'nightly'
       run: |
-        # curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain nightly --profile default -y
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain nightly --profile minimal -y
         rustup default nightly
-        rustup component add rust-src llvm-tools-preview
-        if [ "${{ runner.os }}" == 'Linux' ]; then
-            rustup component add rust-src --toolchain nightly-x86_64-unknown-linux-gnu
-            rustup component add rust-src --toolchain nightly-x86_64-unknown-linux-musl
-            rustup target add x86_64-unknown-linux-musl --toolchain nightly
-          
-            rustup component add rust-src --toolchain nightly-aarch64-unknown-linux-gnu
-            rustup component add rust-src --toolchain nightly-aarch64-unknown-linux-musl
-            rustup target add aarch64-unknown-linux-musl --toolchain nightly
-        else
-            rustup component add rust-src --toolchain nightly-"${{ inputs.target }}"
-            rustup target add "${{ inputs.target }}" --toolchain nightly
-        fi
+        rustup component add rust-src llvm-tools-preview clippy rustfmt
+        rustup component add rust-src --toolchain nightly-"${{ inputs.target }}"
+        rustup target add "${{ inputs.target }}" --toolchain nightly
         rustup update
         
     - name: Setup rust stable musl toolchains

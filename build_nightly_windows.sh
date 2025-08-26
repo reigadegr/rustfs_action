@@ -1,0 +1,35 @@
+#!/bin/bash
+
+export RUSTFLAGS="
+    -Z validate-mir \
+    -Z verify-llvm-ir \
+    -Z mir-opt-level=2 \
+    -Z dylib-lto=yes \
+    -Z inline-mir=yes \
+    -Z share-generics=yes \
+    -Z remap-cwd-prefix=. \
+    -Z function-sections=yes \
+    -Z dep-info-omit-d-target \
+    -Z flatten-format-args=yes \
+    -Z mir-enable-passes=+Inline \
+    -C relro-level=full \
+    -C code-model=small \
+    -C default-linker-libraries \
+    -C target-feature=+crt-static \
+    -C symbol-mangling-version=v0 \
+    -C llvm-args=-fp-contract=off \
+    -C llvm-args=-enable-misched \
+    -C llvm-args=-enable-post-misched \
+    -C llvm-args=-enable-dfa-jump-thread \
+    -C link-args=-Wl,--sort-section=alignment \
+    -C link-args=-Wl,-O3,--gc-sections,--as-needed \
+    -C link-args=-Wl,-x,-s,--strip-all
+" 
+
+cargo update
+
+export CARGO_TERM_COLOR=always
+
+export JEMALLOC_SYS_DISABLE_WARN_ERROR=1
+
+cargo +nightly build -r --target "$1" --bin "$2" -Z build-std -Z trim-paths

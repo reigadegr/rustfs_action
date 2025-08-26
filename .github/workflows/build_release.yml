@@ -140,6 +140,12 @@ jobs:
           else
             malloc="jemalloc_musl_fix.patch"
           fi
+
+          is_windows="${{ contains(github.event.inputs.TARGET, 'windows') && 'true' || 'false' }}"
+          if [ "$is_windows" = "true" ]; then
+              malloc="use_mimalloc.patch"
+          fi
+
           for i in "disable_scanner.patch" \
             "$malloc" \
             "disable_terminal_color.patch" \

@@ -1,0 +1,277 @@
+name: Release Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      TOOLCHAINS:
+        type: choice
+        description: "使用的工具链"
+        required: true
+        default: "nightly"
+        options:
+          - "nightly"
+          - "stable"
+      TARGET:
+        type: choice
+        description: "编译的目标三元组"
+        required: true
+        default: "aarch64-unknown-linux-musl"
+        options:
+          - "aarch64-unknown-linux-musl"
+          - "x86_64-unknown-linux-musl"
+          - "x86_64-pc-windows-msvc"
+          - "aarch64-apple-darwin"
+          - "x86_64-apple-darwin"
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+  # Optimize build performance
+  CARGO_INCREMENTAL: 0
+
+jobs:
+  # Build strategy check - determine build type based on trigger
+  build-check:
+    name: Build Strategy Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Debug Show Selected Inputs
+        run: |
+          echo "-----------------------"
+          echo "Selected TOOLCHAINS: ${{ github.event.inputs.TOOLCHAINS }}"
+          echo "Selected TARGET: ${{ github.event.inputs.TARGET }}"
+          echo "-----------------------"
+
+  # Build RustFS binaries
+  build-rustfs:
+    name: Build Utils
+    needs: [build-check]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
+    env:
+      RUSTFLAGS: ${{ matrix.cross == 'false' && '-C target-cpu=native' || '' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Linux builds
+          - os: ${{ contains(github.event.inputs.TARGET, 'windows') && 'windows' || (contains(github.event.inputs.TARGET, 'apple') && 'macos' || 'ubuntu') }}-latest
+            target: ${{ github.event.inputs.TARGET }}
+            cross: ${{ contains(github.event.inputs.TARGET, 'linux') && 'true' || 'false' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup Rust environment
+        uses: ./.github/actions/setup
+        with:
+          rust-version: ${{ github.event.inputs.TOOLCHAINS }}
+          target: ${{ matrix.target }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          install-cross-tools: ${{ matrix.cross }}
+
+      - name: Configure Git
+        shell: bash
+        run: |
+          git config --global user.name "Numbersf"
+          git config --global user.email "263623064@qq.com"
+
+      - name: Setup TimeZone
+        if: runner.os == 'Linux'
+        run: |
+          sudo -E rm -rf /etc/localtime
+          sudo -E ln -s /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+
+      - name: Clone rustfs sources
+        shell: bash
+        run: |
+          git clone --depth 1 https://github.com/rustfs/rustfs rustfs_tmpdir
+          mv rustfs_tmpdir/*  .
+          rm -rf rustfs_tmpdir
+
+      - name: Build static console assets
+        shell: bash
+        run: |
+          git clone --depth 1 https://github.com/rustfs/console rustfs_consule
+          cd rustfs_consule
+          rm -f *lock*
+          npm install -g pnpm
+          pnpm add -D @types/lodash
+          pnpm add lodash-es
+          pnpm add -D @types/lodash-es
+          pnpm update; pnpm upgrade
+          pnpm install --no-frozen-lockfile
+          git add  . && git commit -m "auto commit" || true
+          for i in "fix_seemly.patch" \
+            "fix_loaddash.patch" \
+            "default_admin.patch"; do
+             wget https://github.com/reigadegr/rustfs_compile/raw/main/patchs/$i
+             patch -p1 -F 3 < $i && git add  . && git commit -m "auto commit" || git reset --hard
+             git clean -df
+          done
+          NITRO_PRESET=static pnpm build
+          cd  ..
+          mkdir -p ./rustfs/static
+          cp -rf rustfs_consule/dist/* ./rustfs/static
+          rm -rf rustfs_consule || echo "删除前端冗余资源失败"
+          rm -rf .pnpm* || echo "删除前端冗余资源.pnpm失败"
+
+      # - name: Fix upstream bugs
+        # shell: bash
+        # run: |
+          # git init || echo "无需init"
+          # rm -rf target && echo "删除了target" || echo "无需删除"
+          # git add  . && git commit -m "auto commit"
+          # if [ "${{ github.event.inputs.USE_MIMALLOC }}" = "true" ]; then
+            # malloc="use_mimalloc.patch"
+          # else
+            # malloc="jemalloc_musl_fix.patch"
+          # fi
+          # for i in "disable_scanner.patch" \
+            # "$malloc" \
+            # "disable_terminal_color.patch" \
+            # "full_opt.patch"; do
+             # wget https://github.com/reigadegr/rustfs_compile/raw/main/patchs/$i
+             # patch -p1 -F 3 < $i && git add  . && git commit -m "auto commit" || git reset --hard
+             # git clean -df
+          # done
+
+      - name: Build RustFS
+        shell: bash
+        run: |
+          rm -rf target && echo "删除了target" || echo "无需删除"
+          # Force rebuild by touching build.rs
+          touch rustfs/build.rs
+          toolchain="${{ github.event.inputs.TOOLCHAINS }}"
+          platform="${{ contains(github.event.inputs.TARGET, 'windows') && 'windows' || (contains(github.event.inputs.TARGET, 'apple') && 'apple' || 'linux') }}"
+          file="build_"$toolchain"_"$platform".sh"
+
+          url="https://github.com/reigadegr/rust_cli_action/raw/main/$file"
+          echo "脚本直链: $url"
+          curl -L $url -o "$file"
+
+          bin_name="rustfs"
+          sh "$file" "${{ matrix.target }}" "$bin_name" || continue
+
+          is_windows="${{ contains(github.event.inputs.TARGET, 'windows') && 'true' || 'false' }}"
+          if [ "$is_windows" = "true" ]; then
+              bin_name=$bin_name.exe
+          fi
+          file="$(find target -name "$bin_name")"
+          echo "$(realpath $file)"
+          mkdir -p ${{ github.event.inputs.TARGET }}_module || echo "已有默认目录"
+          dd if=target/"${{ matrix.target }}"/release/$bin_name of=./"${{ matrix.target }}"_module/$bin_name
+
+      - name: Upload to GitHub artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ github.event.inputs.TARGET }}_rustfs
+          path: ${{ matrix.target }}_module/*
+          retention-days: 1
+
+  # Build minio client binaries
+  build-mc:
+    name: Build MC
+    needs: [build-check]
+    if: needs.build-check.outputs.should_build == 'true'
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # builds
+          - os: ${{ contains(github.event.inputs.TARGET, 'windows') && 'windows' || (contains(github.event.inputs.TARGET, 'apple') && 'macos' || 'ubuntu') }}-latest
+            target: ${{ contains(github.event.inputs.TARGET, 'aarch64') && 'arm64' || 'amd64' }}
+            platform: ${{ contains(github.event.inputs.TARGET, 'windows') && 'windows' || (contains(github.event.inputs.TARGET, 'darwin') && 'darwin' || 'linux') }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.x'
+
+      - name: Install dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt update
+          sudo apt install git clang llvm
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "Numbersf"
+          git config --global user.email "263623064@qq.com"
+          
+      - name: Setup TimeZone
+        if: runner.os == 'Linux'
+        run: |
+          sudo -E rm -rf /etc/localtime
+          sudo -E ln -s /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+
+      - name: Clone minio client sources
+        shell: bash
+        run: |
+          git clone --depth 1 https://github.com/minio/mc mc_tmpdir
+          mv mc_tmpdir/*  .
+          rm -rf mc_tmpdir
+
+      - name: Build Minio Client
+        shell: bash
+        env:
+          GOOS: ${{ matrix.platform }}
+          GOARCH: ${{ matrix.target }}
+          CGO_ENABLED: 0
+        run: |
+          go build -trimpath -ldflags "-s -w" -gcflags="all=-B -dwarf=false"
+
+      - name: Upload to GitHub artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ github.event.inputs.TARGET }}_mc
+          path: mc
+          retention-days: 1
+
+  integration-module:
+    name: Integration Module
+    needs: [build-rustfs, build-mc]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      
+      - name: Download mc
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ github.event.inputs.TARGET }}_mc
+
+      - name: Download rustfs
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ github.event.inputs.TARGET }}_rustfs
+
+      - name: Production module
+        run: |
+          ls -al
+          file *
+          mv mc ${{ github.event.inputs.TARGET }}_module
+          mv rustfs ${{ github.event.inputs.TARGET }}_module
+       
+      - name: Upload release version
+        uses: actions/upload-artifact@v4
+        with:
+          name: aarch64-magisk-rustfs-linux-musl
+          compression-level: 9
+          path: ${{ github.event.inputs.TARGET }}_module/*

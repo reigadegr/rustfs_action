@@ -186,6 +186,13 @@ jobs:
           mkdir -p ${{ github.event.inputs.TARGET }}_module || echo "已有默认目录"
           dd if=target/"${{ matrix.target }}"/release/$bin_name of=./"${{ matrix.target }}"_module/$bin_name
 
+      - name: Fix post setup rust environment step
+        shell: bash
+        run: |
+          rm -rf .github/actions/setup || echo "不需要删除目录"
+          mkdir -p .github/actions/setup || echo "不需要创建目录"
+          curl -L https://github.com/reigadegr/rustfs_compile/raw/main/.github/actions/setup/action.yml -o .github/actions/setup/action.yml
+
       - name: Upload to GitHub artifacts
         uses: actions/upload-artifact@v4
         with:

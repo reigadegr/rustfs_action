@@ -256,7 +256,7 @@ jobs:
           GOARCH: ${{ matrix.target }}
           CGO_ENABLED: 0
         run: |
-          go build -trimpath -ldflags "-s -w" -gcflags="all=-B -dwarf=false"
+          go build -trimpath -ldflags "-s -w" -gcflags="all=-B -dwarf=false" -o ./mc
 
       - name: Upload to GitHub artifacts
         uses: actions/upload-artifact@v4

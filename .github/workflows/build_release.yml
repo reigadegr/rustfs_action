@@ -289,9 +289,16 @@ jobs:
         run: |
           ls -al
           file *
+          mc="mc"
+          rustfs="rustfs"
+          is_windows="${{ contains(github.event.inputs.TARGET, 'windows') && 'true' || 'false' }}"
+          if [ "$is_windows" = "true" ]; then
+              mc=$mc.exe
+              rustfs=$rustfs.exe
+          fi
           mkdir -p ${{ github.event.inputs.TARGET }}_module || true
-          mv mc ${{ github.event.inputs.TARGET }}_module
-          mv rustfs ${{ github.event.inputs.TARGET }}_module
+          mv "$mc" ${{ github.event.inputs.TARGET }}_module
+          mv "$rustfs" ${{ github.event.inputs.TARGET }}_module
        
       - name: Upload release version
         uses: actions/upload-artifact@v4

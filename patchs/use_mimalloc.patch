@@ -1,20 +1,26 @@
 diff --git a/rustfs/Cargo.toml b/rustfs/Cargo.toml
-index b13ed45..8bc7df4 100644
+index b43ad74..30fa932 100644
 --- a/rustfs/Cargo.toml
 +++ b/rustfs/Cargo.toml
-@@ -106,6 +106,10 @@ tower-http = { workspace = true, features = [
+@@ -107,6 +107,7 @@ url = { workspace = true }
  urlencoding = { workspace = true }
  uuid = { workspace = true }
  zip = { workspace = true }
-+mimalloc = { version = "0.1.47", features = [
-+    "no_thp",
-+    "override",
-+] }
++mimalloc = { version = "0.1.48", features = ["no_thp", "override", "v3"] }
  
  [target.'cfg(any(target_os = "macos", target_os = "freebsd", target_os = "netbsd", target_os = "openbsd"))'.dependencies]
  sysctl = { workspace = true }
+@@ -115,8 +116,6 @@ sysctl = { workspace = true }
+ [target.'cfg(target_os = "linux")'.dependencies]
+ libsystemd.workspace = true
+ 
+-[target.'cfg(all(target_os = "linux", target_env = "gnu"))'.dependencies]
+-tikv-jemallocator = "0.6"
+ 
+ [build-dependencies]
+ http.workspace = true
 diff --git a/rustfs/src/main.rs b/rustfs/src/main.rs
-index 8275d84..1c6be13 100644
+index 1a95efe..5c043d7 100644
 --- a/rustfs/src/main.rs
 +++ b/rustfs/src/main.rs
 @@ -57,9 +57,8 @@ use std::io::{Error, Result};

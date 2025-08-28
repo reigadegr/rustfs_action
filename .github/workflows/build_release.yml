@@ -295,6 +295,8 @@ jobs:
           if [ "$is_windows" = "true" ]; then
               mc=$mc.exe
               rustfs=$rustfs.exe
+              mv mc mc.exe || true
+              mv rustfs rustfs.exe || true
           fi
           mkdir -p ${{ github.event.inputs.TARGET }}_module || true
           mv "$mc" ${{ github.event.inputs.TARGET }}_module

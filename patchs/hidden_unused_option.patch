@@ -1,0 +1,43 @@
+commit ed4736e1aaaebba21711406659c4279c4667d8bd
+Author: reigadegr <2722688642@qq.com>
+Date:   Thu Aug 28 21:52:32 2025 +0800
+
+    chore: 关闭不必要的统计
+
+diff --git a/pages/browser/index.vue b/pages/browser/index.vue
+index 744ad3d..f731224 100644
+--- a/pages/browser/index.vue
++++ b/pages/browser/index.vue
+@@ -56,8 +56,6 @@ import { niceBytes } from '../../utils/functions';
+ interface RowData {
+   Name: string;
+   CreationDate: string;
+-  Count?: number | undefined;
+-  Size?: number | undefined; // Optional size field for future use
+ }
+ 
+ interface BucketInfo {
+@@ -104,14 +102,6 @@ const columns: DataTableColumns<RowData> = [
+       return dayjs(row.CreationDate).format('YYYY-MM-DD HH:mm:ss');
+     },
+   },
+-  {
+-    title: t('Object Count'),
+-    key: 'Count',
+-  },
+-  {
+-    title: t('Size'),
+-    key: 'Size',
+-  },
+   {
+     title: t('Actions'),
+     key: 'actions',
+@@ -172,8 +162,6 @@ const { data, refresh } = await useAsyncData(
+         return {
+           Name: item.Name,
+           CreationDate: item.CreationDate,
+-          Count: (item.Name && bucketsInfo[item.Name]?.objects_count) || 0,
+-          Size: niceBytes(((item.Name && bucketsInfo[item.Name]?.size) || 0) + ''), // Optional size field for future use
+         };
+       })?.sort((a: any, b: any) => {
+         return a.Name.localeCompare(b.Name);

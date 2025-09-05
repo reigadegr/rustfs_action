@@ -104,6 +104,9 @@ jobs:
           rm -rf rustfs_tmpdir rust-toolchain.toml || true
 
       - name: Build static console assets
+        env:
+          FORCE_COLOR: 1
+          PNPM_COLOR: always
         shell: bash
         run: |
           git clone --depth 1 https://github.com/rustfs/console rustfs_consule

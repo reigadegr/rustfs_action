@@ -157,6 +157,7 @@ jobs:
           git add  . && git commit -m "auto commit" || true
           for i in "fix_seemly.patch" \
             "fix_loaddash.patch" \
+            "fix_strong_type.patch" \
             "default_admin.patch"; do
              wget https://github.com/reigadegr/rustfs_compile/raw/main/patchs/$i
              patch -p1 -F 3 < $i && git add  . && git commit -m "auto commit" || git reset --hard

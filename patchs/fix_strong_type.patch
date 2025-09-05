@@ -1,0 +1,35 @@
+diff --git a/components/object/list.vue b/components/object/list.vue
+index 3a7d492..bfe6ace 100644
+--- a/components/object/list.vue
++++ b/components/object/list.vue
+@@ -54,7 +54,7 @@
+   <object-upload-picker
+     :show="uploadPickerVisible"
+     @update:show="
+-      val => {
++      (val: boolean) => {
+         uploadPickerVisible = val;
+         refresh();
+       }
+@@ -66,7 +66,7 @@
+     :show="newObjectFormVisible"
+     :asPrefix="newObjectAsPrefix"
+     @update:show="
+-      val => {
++      (val: boolean) => {
+         newObjectFormVisible = val;
+         refresh();
+       }
+diff --git a/pages/browser/[bucket]/[[key]].vue b/pages/browser/[bucket]/[[key]].vue
+index 2ec5c4f..bdf3eb6 100644
+--- a/pages/browser/[bucket]/[[key]].vue
++++ b/pages/browser/[bucket]/[[key]].vue
+@@ -5,7 +5,7 @@
+         <template #title>
+           <div class="flex items-center gap-4">
+             <h1 @click="$router.push(bucketPath())" class="cursor-pointer">{{ bucketName }}</h1>
+-            <object-path-links :object-key="key" @click="path => $router.push(bucketPath(path))" />
++            <object-path-links :object-key="key" @click="(path: string) => $router.push(bucketPath(path))" />
+           </div>
+         </template>
+       </page-header>

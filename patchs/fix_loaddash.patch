@@ -1,12 +1,13 @@
 diff --git a/pages/browser/[bucket]/[[key]].vue b/pages/browser/[bucket]/[[key]].vue
-index 5b77db4..a06e5c0 100644
+index 2ec5c4f..a1e8c22 100644
 --- a/pages/browser/[bucket]/[[key]].vue
 +++ b/pages/browser/[bucket]/[[key]].vue
-@@ -21,7 +21,7 @@
- <script lang="ts" setup>
+@@ -20,7 +20,7 @@
  
- import { useRoute } from '#app'
--import { endsWith } from 'lodash'
-+import { endsWith } from 'lodash-es'
- import { joinRelativeURL } from 'ufo'
- import { computed } from 'vue'
+ <script lang="ts" setup>
+ import { useRoute } from '#app';
+-import { endsWith } from 'lodash';
++import { endsWith } from 'lodash-es';
+ import { joinRelativeURL } from 'ufo';
+ import { computed } from 'vue';
+ 

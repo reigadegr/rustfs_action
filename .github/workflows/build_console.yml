@@ -146,6 +146,8 @@ jobs:
         shell: bash
         run: |
           git clone --depth 1 https://github.com/rustfs/console rustfs_consule
+          export FORCE_COLOR=1
+          export PNPM_COLOR=always
           cd rustfs_consule
           rm -f *lock*
           npm install -g pnpm

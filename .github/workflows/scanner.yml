@@ -153,9 +153,8 @@ jobs:
               malloc="use_mimalloc.patch"
           fi
 
-          for i in "disable_terminal_color.patch" \
-            "$malloc" \
-            "full_opt.patch"; do
+          for i in "full_opt.patch" \
+            "$malloc"; do
              url="https://github.com/reigadegr/rustfs_action/raw/main/patchs/$i"
              echo "补丁直链: $url"
              curl -L $url -o "$i"

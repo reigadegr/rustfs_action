@@ -1,4 +1,4 @@
-setx RUSTFS_ACCESS_KEY "rfsaccess1"
+setx RUSTFS_ACCESS_KEY "rfsaccess"
 setx RUSTFS_SECRET_KEY "rfssecret"
 
 setx RUSTFS_VOLUMES ".\data_rfs"

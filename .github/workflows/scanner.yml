@@ -177,7 +177,7 @@ jobs:
           curl -L $url -o "$file"
 
           bin_name="rustfs"
-          sh "$file" "${{ matrix.target }}" "$bin_name" || continue
+          sh "$file" "${{ matrix.target }}" "$bin_name"
 
           is_windows="${{ contains(github.event.inputs.TARGET, 'windows') && 'true' || 'false' }}"
           if [ "$is_windows" = "true" ]; then
@@ -187,6 +187,7 @@ jobs:
           echo "$(realpath $file)"
           mkdir -p ${{ github.event.inputs.TARGET }}_module || echo "已有默认目录"
           dd if=target/"${{ matrix.target }}"/release/$bin_name of=./"${{ matrix.target }}"_module/$bin_name
+          git log > ./"${{ matrix.target }}"_module/commits.txt
 
       - name: Fix post setup rust environment step
         shell: bash

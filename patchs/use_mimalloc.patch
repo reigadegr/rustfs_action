@@ -1,8 +1,16 @@
 diff --git a/rustfs/Cargo.toml b/rustfs/Cargo.toml
-index 761ee3c..34d9a14 100644
+index 761ee3c..515f806 100644
 --- a/rustfs/Cargo.toml
 +++ b/rustfs/Cargo.toml
-@@ -119,11 +119,7 @@ sysctl = { workspace = true }
+@@ -111,6 +111,7 @@ url = { workspace = true }
+ urlencoding = { workspace = true }
+ uuid = { workspace = true }
+ zip = { workspace = true }
++mimalloc = { version = "0.1.48", features = ["no_thp", "override", "v3"] }
+ 
+ [target.'cfg(any(target_os = "macos", target_os = "freebsd", target_os = "netbsd", target_os = "openbsd"))'.dependencies]
+ sysctl = { workspace = true }
+@@ -119,12 +120,6 @@ sysctl = { workspace = true }
  [target.'cfg(target_os = "linux")'.dependencies]
  libsystemd.workspace = true
  
@@ -11,10 +19,10 @@ index 761ee3c..34d9a14 100644
 -
 -[target.'cfg(all(target_os = "linux", target_env = "musl"))'.dependencies]
 -mimalloc = "0.1"
-+mimalloc = { version = "0.1.48", features = ["no_thp", "override", "v3"] }
- 
+-
  [target.'cfg(not(target_os = "windows"))'.dependencies]
  pprof = { version = "0.15.0", features = ["flamegraph", "protobuf-codec"] }
+ 
 diff --git a/rustfs/src/main.rs b/rustfs/src/main.rs
 index 056e0dd..e22a59e 100644
 --- a/rustfs/src/main.rs

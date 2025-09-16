@@ -1,28 +1,36 @@
 diff --git a/rustfs/Cargo.toml b/rustfs/Cargo.toml
-index 6d753ef..8141ee4 100644
+index 761ee3c..fd8e3f6 100644
 --- a/rustfs/Cargo.toml
 +++ b/rustfs/Cargo.toml
-@@ -112,8 +112,8 @@ sysctl = { workspace = true }
+@@ -119,11 +119,7 @@ sysctl = { workspace = true }
  [target.'cfg(target_os = "linux")'.dependencies]
  libsystemd.workspace = true
  
 -[target.'cfg(all(target_os = "linux", target_env = "gnu"))'.dependencies]
 -tikv-jemallocator = "0.6"
-+[target.'cfg(all(target_os = "linux", any(target_env = "gnu", target_env = "musl")))'.dependencies]
-+tikv-jemallocator = { git = "https://github.com/reigadegr/jemallocator", default-features = false }
+-
+-[target.'cfg(all(target_os = "linux", target_env = "musl"))'.dependencies]
+-mimalloc = "0.1"
++tikv-jemallocator = { git = "https://github.com/reigadegr/jemallocator" }
  
- [build-dependencies]
- http.workspace = true
+ [target.'cfg(not(target_os = "windows"))'.dependencies]
+ pprof = { version = "0.15.0", features = ["flamegraph", "protobuf-codec"] }
 diff --git a/rustfs/src/main.rs b/rustfs/src/main.rs
-index 8275d84..5b0005e 100644
+index 056e0dd..9ff7e89 100644
 --- a/rustfs/src/main.rs
 +++ b/rustfs/src/main.rs
-@@ -57,7 +57,7 @@ use std::io::{Error, Result};
+@@ -72,14 +72,9 @@ use std::str::FromStr;
  use std::sync::Arc;
  use tracing::{debug, error, info, instrument, warn};
  
 -#[cfg(all(target_os = "linux", target_env = "gnu"))]
-+#[cfg(all(target_os = "linux", any(target_env = "gnu", target_env = "musl")))]  
  #[global_allocator]
  static GLOBAL: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
  
+-#[cfg(all(target_os = "linux", target_env = "musl"))]
+-#[global_allocator]
+-static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
+-
+ const LOGO: &str = r#"
+ 
+ ░█▀▄░█░█░█▀▀░▀█▀░█▀▀░█▀▀

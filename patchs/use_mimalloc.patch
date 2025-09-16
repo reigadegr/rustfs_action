@@ -1,36 +1,33 @@
 diff --git a/rustfs/Cargo.toml b/rustfs/Cargo.toml
-index b43ad74..30fa932 100644
+index 761ee3c..34d9a14 100644
 --- a/rustfs/Cargo.toml
 +++ b/rustfs/Cargo.toml
-@@ -107,6 +107,7 @@ url = { workspace = true }
- urlencoding = { workspace = true }
- uuid = { workspace = true }
- zip = { workspace = true }
-+mimalloc = { version = "0.1.48", features = ["no_thp", "override", "v3"] }
- 
- [target.'cfg(any(target_os = "macos", target_os = "freebsd", target_os = "netbsd", target_os = "openbsd"))'.dependencies]
- sysctl = { workspace = true }
-@@ -115,8 +116,6 @@ sysctl = { workspace = true }
+@@ -119,11 +119,7 @@ sysctl = { workspace = true }
  [target.'cfg(target_os = "linux")'.dependencies]
  libsystemd.workspace = true
  
 -[target.'cfg(all(target_os = "linux", target_env = "gnu"))'.dependencies]
 -tikv-jemallocator = "0.6"
+-
+-[target.'cfg(all(target_os = "linux", target_env = "musl"))'.dependencies]
+-mimalloc = "0.1"
++mimalloc = { version = "0.1.48", features = ["no_thp", "override", "v3"] }
  
- [build-dependencies]
- http.workspace = true
+ [target.'cfg(not(target_os = "windows"))'.dependencies]
+ pprof = { version = "0.15.0", features = ["flamegraph", "protobuf-codec"] }
 diff --git a/rustfs/src/main.rs b/rustfs/src/main.rs
-index 1a95efe..5c043d7 100644
+index 056e0dd..e22a59e 100644
 --- a/rustfs/src/main.rs
 +++ b/rustfs/src/main.rs
-@@ -57,9 +57,8 @@ use std::io::{Error, Result};
+@@ -72,11 +72,6 @@ use std::str::FromStr;
  use std::sync::Arc;
  use tracing::{debug, error, info, instrument, warn};
  
 -#[cfg(all(target_os = "linux", target_env = "gnu"))]
- #[global_allocator]
+-#[global_allocator]
 -static GLOBAL: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
-+static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
+-
+-#[cfg(all(target_os = "linux", target_env = "musl"))]
+ #[global_allocator]
+ static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
  
- #[instrument]
- fn print_server_info() {

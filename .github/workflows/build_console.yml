@@ -154,6 +154,7 @@ jobs:
           pnpm add -D @types/lodash
           pnpm add lodash-es
           pnpm add -D @types/lodash-es
+          pnpm add -D @iconify/vue
           pnpm update; pnpm upgrade
           pnpm install --no-frozen-lockfile
           git add  . && git commit -m "auto commit" || true

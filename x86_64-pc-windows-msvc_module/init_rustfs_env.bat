@@ -2,6 +2,8 @@ setx RUSTFS_ACCESS_KEY "rfsaccess"
 setx RUSTFS_SECRET_KEY "rfssecret"
 
 setx RUSTFS_VOLUMES ".\data_rfs"
+cmd /c md ".\data_rfs"
+
 setx RUSTFS_ADDRESS ":9190"
 setx RUST_LOG warn
 

@@ -18,13 +18,7 @@ export RUSTFLAGS="
     -C relro-level=none \
     -C code-model=small \
     -C relocation-model=static \
-    -C symbol-mangling-version=v0 \
-    -C llvm-args=-fp-contract=off \
-    -C llvm-args=-enable-misched \
-    -C llvm-args=-enable-post-misched \
-    -C llvm-args=-enable-dfa-jump-thread \
-    -C link-args=-Wl,-dead_strip \
-    -C link-args=-Wl,-S
+    -C symbol-mangling-version=v0
 " 
 
 cargo update

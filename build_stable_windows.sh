@@ -5,14 +5,7 @@ export RUSTFLAGS="
     -C code-model=small \
     -C default-linker-libraries \
     -C target-feature=+crt-static \
-    -C symbol-mangling-version=v0 \
-    -C llvm-args=-fp-contract=off \
-    -C llvm-args=-enable-misched \
-    -C llvm-args=-enable-post-misched \
-    -C llvm-args=-enable-dfa-jump-thread \
-    -C link-args=-Wl,--sort-section=alignment \
-    -C link-args=-Wl,-O2,--gc-sections,--as-needed \
-    -C link-args=-Wl,-x,-s,--strip-all
+    -C symbol-mangling-version=v0
 " 
 
 cargo update

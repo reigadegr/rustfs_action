@@ -10,7 +10,7 @@ on:
         default: 'Release Build'
         options:
           - "Release Build"
-          - "Scanner Build"
+          - "Release Build rustfs console"
       count:
         description: '最多访问的运行次数'
         required: false

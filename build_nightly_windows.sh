@@ -1,24 +1,24 @@
 #!/bin/bash
 
 export RUSTFLAGS="
-    -Z mir-opt-level=2 \
-    -Z dylib-lto=yes \
-    -Z inline-mir=yes \
-    -Z fewer-names=yes \
-    -Z box-noalias=yes \
-    -Z share-generics=yes \
-    -Z remap-cwd-prefix=. \
-    -Z mutable-noalias=yes \
-    -Z function-sections=yes \
-    -Z dep-info-omit-d-target \
-    -Z flatten-format-args=yes \
-    -Z saturating-float-casts=yes \
-    -Z mir-enable-passes=+Inline \
-    -Z precise-enum-drop-elaboration=yes \
-    -C relro-level=full \
-    -C code-model=small \
-    -C default-linker-libraries \
-    -C target-feature=+crt-static \
+    -Z mir-opt-level=2
+    -Z dylib-lto=yes
+    -Z inline-mir=yes
+    -Z fewer-names=yes
+    -Z box-noalias=yes
+    -Z share-generics=yes
+    -Z remap-cwd-prefix=.
+    -Z mutable-noalias=yes
+    -Z function-sections=yes
+    -Z dep-info-omit-d-target
+    -Z flatten-format-args=yes
+    -Z saturating-float-casts=yes
+    -Z mir-enable-passes=+Inline
+    -Z precise-enum-drop-elaboration=yes
+    -C relro-level=full
+    -C code-model=small
+    -C default-linker-libraries
+    -C target-feature=+crt-static
     -C symbol-mangling-version=v0
 " 
 

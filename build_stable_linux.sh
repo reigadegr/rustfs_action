@@ -1,9 +1,9 @@
 #!/bin/bash
 
 export RUSTFLAGS="
-    -C relro-level=full \
-    -C code-model=small \
-    -C relocation-model=static \
+    -C relro-level=full
+    -C code-model=small
+    -C relocation-model=static
     -C symbol-mangling-version=v0
 "
 

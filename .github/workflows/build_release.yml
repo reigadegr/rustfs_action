@@ -28,6 +28,9 @@ on:
         required: true
         default: true
 
+permissions:
+  contents: read
+
 env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: 1
@@ -117,12 +120,10 @@ jobs:
           pnpm add lodash-es
           pnpm add -D @types/lodash-es
           pnpm add -D @iconify/vue
-          pnpm update; pnpm upgrade
           pnpm install --no-frozen-lockfile
           git add  . && git commit -m "auto commit" || true
           for i in "fix_seemly.patch" \
             "fix_loaddash.patch" \
-            "fix_strong_type.patch" \
             "default_admin.patch"; do
              url="https://github.com/reigadegr/rustfs_action/raw/main/patchs/$i"
              echo "补丁直链: $url"

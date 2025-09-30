@@ -27,6 +27,11 @@ on:
         description: "是否使用mimalloc替代tikv-jemallocator？"
         required: true
         default: true
+      HASH:
+        type: string
+        description: "自定义提交哈希以debug"
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -55,6 +60,7 @@ jobs:
           echo "Selected TOOLCHAINS: ${{ github.event.inputs.TOOLCHAINS }}"
           echo "Selected TARGET: ${{ github.event.inputs.TARGET }}"
           echo "Selected USE_MIMALLOC: ${{ github.event.inputs.USE_MIMALLOC }}"
+          echo "Selected HASH: ${{ github.event.inputs.HASH }}"
           echo "-----------------------"
 
   # Build RustFS binaries
@@ -102,7 +108,11 @@ jobs:
       - name: Clone rustfs sources
         shell: bash
         run: |
-          git clone --depth 1 https://github.com/rustfs/rustfs rustfs_tmpdir
+          git clone https://github.com/rustfs/rustfs rustfs_tmpdir
+          cd rustfs_tmpdir
+          commit_hash="${{ github.event.inputs.HASH }}"
+          git reset --hard "$(basename "$commit_hash")" || true
+          cd  ..
           mv rustfs_tmpdir/*  .
           rm -rf rustfs_tmpdir rust-toolchain.toml || true
 

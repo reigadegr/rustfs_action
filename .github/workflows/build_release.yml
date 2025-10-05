@@ -115,6 +115,7 @@ jobs:
           cd  ..
           mv rustfs_tmpdir/*  .
           rm -rf rustfs_tmpdir rust-toolchain.toml || true
+          cargo add mimalloc --features override,no_thp,v3 -p rustfs
 
       - name: Build static console assets
         env:

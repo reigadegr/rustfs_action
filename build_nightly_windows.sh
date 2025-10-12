@@ -16,6 +16,7 @@ export RUSTFLAGS="
     -C relro-level=full
     -C code-model=small
     -C default-linker-libraries
+    -C target-cpu=native
     -C target-feature=+crt-static
     -C symbol-mangling-version=v0
 " 

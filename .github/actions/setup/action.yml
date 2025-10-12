@@ -47,6 +47,8 @@ runs:
       if: runner.os == 'Linux'
       shell: bash
       run: |
+         sudo apt update
+         sudo apt-get install linux-modules-extra-"$(uname -r)"
          sudo -E sysctl vm.swappiness=1
          sudo -E sysctl vm.min_free_kbytes=32768
          sudo -E sysctl vm.watermark_scale_factor=100

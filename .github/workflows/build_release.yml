@@ -178,6 +178,13 @@ jobs:
              git clean -df
           done
 
+      - name: "⚙️ Reset flags"
+        shell: bash
+        run: |
+          rm -rf .cargo/ || echo "无需删除目录"
+          mkdir -p .cargo/
+          curl -L https://github.com/reigadegr/rustfs_action/raw/main/.cargo/config.toml -o .cargo/config.toml
+
       - name: Build RustFS
         shell: bash
         run: |
@@ -188,7 +195,7 @@ jobs:
           platform="${{ contains(github.event.inputs.TARGET, 'windows') && 'windows' || (contains(github.event.inputs.TARGET, 'apple') && 'apple' || 'linux') }}"
           file="build_"$toolchain"_"$platform".sh"
 
-          url="https://github.com/reigadegr/rustfs_action/raw/main/$file"
+          url="https://github.com/reigadegr/rustfs_action/raw/main/script/$file"
           echo "脚本直链: $url"
           curl -L $url -o "$file"
 

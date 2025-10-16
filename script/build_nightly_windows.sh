@@ -15,9 +15,9 @@ export RUSTFLAGS="
     -Z precise-enum-drop-elaboration=yes
     -C relro-level=full
     -C code-model=small
-    -C linker-plugin-lto=no
-    -C relocation-model=static
     -C default-linker-libraries
+    -C target-cpu=native
+    -C target-feature=+crt-static
     -C symbol-mangling-version=v0
 " 
 
@@ -27,4 +27,4 @@ export CARGO_TERM_COLOR=always
 
 export JEMALLOC_SYS_DISABLE_WARN_ERROR=1
 
-cargo +nightly zigbuild -r --target "$1" --bin "$2" -Z build-std -Z trim-paths
+cargo +nightly build -r --target "$1" --bin "$2" -Z build-std=core,alloc,std,panic_abort -Z trim-paths

@@ -7,7 +7,6 @@ export RUSTFLAGS="
     -C symbol-mangling-version=v0
 "
 
-cargo update
 
 export CARGO_TERM_COLOR=always
 

@@ -150,6 +150,7 @@ jobs:
           for i in "fix_seemly.patch" \
             "fix_loaddash.patch" \
             "fix_strong_type.patch" \
+            "default_1d_url.patch" \
             "default_admin.patch"; do
              url="https://github.com/reigadegr/rustfs_action/raw/main/patchs/$i"
              echo "补丁直链: $url"

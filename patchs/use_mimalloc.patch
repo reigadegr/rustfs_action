@@ -1,8 +1,8 @@
 diff --git a/Cargo.toml b/Cargo.toml
-index 524810a..9f9c5af 100644
+index 524810a..47f1fb8 100644
 --- a/Cargo.toml
 +++ b/Cargo.toml
-@@ -265,14 +265,9 @@ opentelemetry-stdout = { version = "0.31.0" }
+@@ -265,11 +265,6 @@ opentelemetry-stdout = { version = "0.31.0" }
  
  # Performance Analysis and Memory Profiling
  # Use tikv-jemallocator as memory allocator and enable performance analysis
@@ -13,11 +13,7 @@ index 524810a..9f9c5af 100644
 -jemalloc_pprof = { version = "0.8.1", features = ["symbolize", "flamegraph"] }
  # Used to generate CPU performance analysis data and flame diagrams
  pprof = { version = "0.15.0", features = ["flamegraph", "protobuf-codec"] }
--mimalloc = "0.1"
-+mimalloc = { version = "0.1.48", features = ["no_thp", "override", "v3"] }
- 
- 
- [workspace.metadata.cargo-shear]
+ mimalloc = "0.1"
 diff --git a/rustfs/Cargo.toml b/rustfs/Cargo.toml
 index 018b279..c553dfc 100644
 --- a/rustfs/Cargo.toml

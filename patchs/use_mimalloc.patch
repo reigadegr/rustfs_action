@@ -1,38 +1,15 @@
-diff --git a/Cargo.toml b/Cargo.toml
-index 524810a..47f1fb8 100644
---- a/Cargo.toml
-+++ b/Cargo.toml
-@@ -265,11 +265,6 @@ opentelemetry-stdout = { version = "0.31.0" }
- 
- # Performance Analysis and Memory Profiling
- # Use tikv-jemallocator as memory allocator and enable performance analysis
--tikv-jemallocator = { version = "0.6", features = ["profiling", "stats", "unprefixed_malloc_on_supported_platforms", "background_threads"] }
--# Used to control and obtain statistics for jemalloc at runtime
--tikv-jemalloc-ctl = { version = "0.6", features = ["use_std", "stats", "profiling"] }
--# Used to generate pprof-compatible memory profiling data and support symbolization and flame graphs
--jemalloc_pprof = { version = "0.8.1", features = ["symbolize", "flamegraph"] }
- # Used to generate CPU performance analysis data and flame diagrams
- pprof = { version = "0.15.0", features = ["flamegraph", "protobuf-codec"] }
- mimalloc = "0.1"
 diff --git a/rustfs/Cargo.toml b/rustfs/Cargo.toml
-index 018b279..c553dfc 100644
+index 018b279..9ff8d2c 100644
 --- a/rustfs/Cargo.toml
 +++ b/rustfs/Cargo.toml
-@@ -131,14 +131,7 @@ sysctl = { workspace = true }
+@@ -131,7 +131,6 @@ sysctl = { workspace = true }
  [target.'cfg(target_os = "linux")'.dependencies]
  libsystemd.workspace = true
  
 -[target.'cfg(all(target_os = "linux", target_env = "musl"))'.dependencies]
  mimalloc = { workspace = true }
--[target.'cfg(all(target_os = "linux", target_env = "gnu"))'.dependencies]
--tikv-jemallocator = { workspace = true }
--[target.'cfg(all(not(target_env = "msvc"), not(target_os = "windows")))'.dependencies]
--tikv-jemalloc-ctl = { workspace = true }
--jemalloc_pprof = { workspace = true }
--pprof = { workspace = true }
- 
- [dev-dependencies]
- uuid = { workspace = true, features = ["v4"] }
+ [target.'cfg(all(target_os = "linux", target_env = "gnu"))'.dependencies]
+ tikv-jemallocator = { workspace = true }
 diff --git a/rustfs/src/main.rs b/rustfs/src/main.rs
 index f5ae2c5..53e24be 100644
 --- a/rustfs/src/main.rs

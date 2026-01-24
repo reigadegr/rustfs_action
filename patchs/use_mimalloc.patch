@@ -1,28 +1,29 @@
-diff --git a/rustfs/Cargo.toml b/rustfs/Cargo.toml
-index 018b279..9ff8d2c 100644
---- a/rustfs/Cargo.toml
-+++ b/rustfs/Cargo.toml
-@@ -131,7 +131,6 @@ sysctl = { workspace = true }
- [target.'cfg(target_os = "linux")'.dependencies]
- libsystemd.workspace = true
+diff --git a/Cargo.toml b/Cargo.toml
+index eb57069..54b7e3e 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -278,7 +278,7 @@ suppaftp = { version = "7.1.0", features = ["tokio", "tokio-rustls", "rustls"] }
+ rcgen = "0.14.6"
  
--[target.'cfg(all(target_os = "linux", target_env = "musl"))'.dependencies]
- mimalloc = { workspace = true }
- [target.'cfg(all(target_os = "linux", target_env = "gnu"))'.dependencies]
- tikv-jemallocator = { workspace = true }
+ # Performance Analysis and Memory Profiling
+-mimalloc = "0.1"
++mimalloc = { version = "0.1.48", features = ["no_thp", "override"] }
+ # Use tikv-jemallocator as memory allocator and enable performance analysis
+ tikv-jemallocator = { version = "0.6", features = ["profiling", "stats", "unprefixed_malloc_on_supported_platforms", "background_threads"] }
+ # Used to control and obtain statistics for jemalloc at runtime
 diff --git a/rustfs/src/main.rs b/rustfs/src/main.rs
-index f5ae2c5..53e24be 100644
+index f4bb67b..d7c322c 100644
 --- a/rustfs/src/main.rs
 +++ b/rustfs/src/main.rs
-@@ -70,11 +70,6 @@ use std::sync::Arc;
+@@ -63,11 +63,6 @@ use std::sync::Arc;
  use tokio_util::sync::CancellationToken;
  use tracing::{debug, error, info, instrument, warn};
  
--#[cfg(all(target_os = "linux", target_env = "gnu"))]
+-#[cfg(all(target_os = "linux", target_env = "gnu", target_arch = "x86_64"))]
 -#[global_allocator]
 -static GLOBAL: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
 -
--#[cfg(all(target_os = "linux", target_env = "musl"))]
+-#[cfg(not(all(target_os = "linux", target_env = "gnu", target_arch = "x86_64")))]
  #[global_allocator]
  static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
  

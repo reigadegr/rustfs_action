@@ -29,7 +29,7 @@ on:
         type: choice
         description: "使用的配置文件"
         required: true
-        default: "config_micro_opt.toml"
+        default: "config_full_opt.toml"
         options:
           - "config_full_opt.toml"
           - "config_debug.toml"

@@ -197,6 +197,12 @@ jobs:
           mkdir -p .cargo/
           curl -L https://github.com/reigadegr/rustfs_action/raw/main/.cargo/${{ github.event.inputs.CONFIG }} -o .cargo/config.toml
 
+      - uses: rui314/setup-mold@v1
+        if: runner.os == 'Linux'
+        with:
+          mold-version: 2.40.4
+          make-default: false
+
       - name: Build RustFS
         shell: bash
         run: |

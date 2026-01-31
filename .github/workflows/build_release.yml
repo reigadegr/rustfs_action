@@ -211,11 +211,11 @@ jobs:
           touch rustfs/build.rs
           toolchain="${{ github.event.inputs.TOOLCHAINS }}"
           platform="${{ contains(github.event.inputs.TARGET, 'windows') && 'windows' || (contains(github.event.inputs.TARGET, 'apple') && 'apple' || 'linux') }}"
-          file="build_"$toolchain"_"$platform".sh"
+          script_file="build_"$toolchain"_"$platform".sh"
 
-          url="https://github.com/reigadegr/rustfs_action/raw/main/script/$file"
+          url="https://github.com/reigadegr/rustfs_action/raw/main/script/$script_file"
           echo "脚本直链: $url"
-          curl -L $url -o "$file"
+          curl -L $url -o "$script_file"
 
           bin_name="rustfs"
           
@@ -226,7 +226,7 @@ jobs:
               sed -i 's/relocation-model=pic/relocation-model=static/g' "$script_file"
           fi
           
-          sh "$file" "${{ matrix.target }}" "$bin_name"
+          sh "$script_file" "${{ matrix.target }}" "$bin_name"
 
           is_windows="${{ contains(github.event.inputs.TARGET, 'windows') && 'true' || 'false' }}"
           if [ "$is_windows" = "true" ]; then

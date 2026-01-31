@@ -212,6 +212,14 @@ jobs:
           curl -L $url -o "$file"
 
           bin_name="rustfs"
+          
+          is_musl="${{ contains(github.event.inputs.TARGET, 'musl') && 'true' || 'false' }}"
+          if [ "$is_musl" = "true" ]; then
+              sed -i 's/ build / zigbuild /g' "$script_file"
+              sed -i 's/,--relax//g' "$script_file"
+              sed -i 's/relocation-model=pic/relocation-model=static/g' "$script_file"
+          fi
+          
           sh "$file" "${{ matrix.target }}" "$bin_name"
 
           is_windows="${{ contains(github.event.inputs.TARGET, 'windows') && 'true' || 'false' }}"

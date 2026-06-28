@@ -173,7 +173,15 @@ jobs:
           NITRO_PRESET=static pnpm build
           cd  ..
           mkdir -p ./rustfs/static
-          cp -rf rustfs_consule/dist/* ./rustfs/static
+          if [ -d rustfs_consule/out/rustfs/console ]; then
+            cp -rf rustfs_consule/out/rustfs/console/* ./rustfs/static
+          elif [ -d rustfs_consule/dist ]; then
+            cp -rf rustfs_consule/dist/* ./rustfs/static
+          else
+            echo "No console static output directory found"
+            find rustfs_consule -maxdepth 3 -type d | sort
+            exit 1
+          fi
           rm -rf rustfs_consule || echo "删除前端冗余资源失败"
           rm -rf .pnpm* || echo "删除前端冗余资源.pnpm失败"
  

@@ -7,7 +7,7 @@ on:
         type: choice
         description: "使用的工具链"
         required: true
-        default: "nightly"
+        default: "stable"
         options:
           - "nightly"
           - "stable"
@@ -15,7 +15,7 @@ on:
         type: choice
         description: "编译的目标三元组"
         required: true
-        default: "x86_64-pc-windows-msvc"
+        default: "x86_64-unknown-linux-gnu"
         options:
           - "aarch64-unknown-linux-musl"
           - "x86_64-unknown-linux-musl"
@@ -29,16 +29,11 @@ on:
         type: choice
         description: "使用的配置文件"
         required: true
-        default: "config_full_opt.toml"
+        default: "config_micro_opt.toml"
         options:
           - "config_full_opt.toml"
           - "config_debug.toml"
           - "config_micro_opt.toml"
-      HASH:
-        type: string
-        description: "自定义提交哈希以debug"
-        required: false
-        default: ""
 
 permissions:
   contents: read
@@ -66,7 +61,6 @@ jobs:
           echo "-----------------------"
           echo "Selected TOOLCHAINS: ${{ github.event.inputs.TOOLCHAINS }}"
           echo "Selected TARGET: ${{ github.event.inputs.TARGET }}"
-          echo "Selected HASH: ${{ github.event.inputs.HASH }}"
           echo "-----------------------"
 
   # Build RustFS binaries
@@ -114,11 +108,7 @@ jobs:
       - name: Clone rustfs sources
         shell: bash
         run: |
-          git clone https://github.com/rustfs/rustfs rustfs_tmpdir
-          cd rustfs_tmpdir
-          commit_hash="${{ github.event.inputs.HASH }}"
-          git reset --hard "$(basename "$commit_hash")" || true
-          cd  ..
+          git clone https://github.com/rustfs/rustfs rustfs_tmpdir --depth 1
           mv rustfs_tmpdir/*  .
           rm -rf rustfs_tmpdir rust-toolchain.toml || true
           sed -i 's#mimalloc = "0.1"#mimalloc = "0.1.52"#g' Cargo.toml || true

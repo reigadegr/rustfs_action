@@ -34,11 +34,6 @@ on:
           - "config_full_opt.toml"
           - "config_debug.toml"
           - "config_micro_opt.toml"
-      USE_MIMALLOC:
-        type: boolean
-        description: "是否使用mimalloc替代tikv-jemallocator？"
-        required: true
-        default: true
       HASH:
         type: string
         description: "自定义提交哈希以debug"
@@ -71,7 +66,6 @@ jobs:
           echo "-----------------------"
           echo "Selected TOOLCHAINS: ${{ github.event.inputs.TOOLCHAINS }}"
           echo "Selected TARGET: ${{ github.event.inputs.TARGET }}"
-          echo "Selected USE_MIMALLOC: ${{ github.event.inputs.USE_MIMALLOC }}"
           echo "Selected HASH: ${{ github.event.inputs.HASH }}"
           echo "-----------------------"
 
@@ -164,31 +158,6 @@ jobs:
           cp -rf rustfs_consule/dist/* ./rustfs/static
           rm -rf rustfs_consule || echo "删除前端冗余资源失败"
           rm -rf .pnpm* || echo "删除前端冗余资源.pnpm失败"
-
-      - name: Fix upstream bugs
-        shell: bash
-        run: |
-          git init || echo "无需init"
-          rm -rf target && echo "删除了target" || echo "无需删除"
-          git add  . && git commit -m "auto commit" >/dev/null || true
-          if [ "${{ github.event.inputs.USE_MIMALLOC }}" = "true" ]; then
-            malloc="use_mimalloc.patch"
-          else
-            malloc="jemalloc_musl_fix.patch"
-          fi
-
-          is_windows="${{ contains(github.event.inputs.TARGET, 'windows') && 'true' || 'false' }}"
-          if [ "$is_windows" = "true" ]; then
-              malloc="use_mimalloc.patch"
-          fi
-
-          for i in "$malloc"; do
-             url="https://github.com/reigadegr/rustfs_action/raw/main/patchs/$i"
-             echo "补丁直链: $url"
-             curl -L $url -o "$i"
-             patch -p1 -F 3 < $i && git add  . && git commit -m "auto commit" || git reset --hard
-             git clean -df
-          done
 
       - name: "⚙️ Reset flags"
         shell: bash
